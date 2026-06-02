@@ -23,6 +23,11 @@ def writeCondorSub(_file,_exec,_queue,_nJobs,_jobOpts,doHoldOnFailure=True,doPer
   _file.write("arguments  = $(ProcId)\n")
   _file.write("output     = %s.$(ClusterId).$(ProcId).out\n"%_exec)
   _file.write("error      = %s.$(ClusterId).$(ProcId).err\n\n"%_exec)
+
+  _file.write("should_transfer_files = YES\n")
+  _file.write("when_to_transfer_output = ON_EXIT\n")
+  _file.write("transfer_output_files = \"\"\n\n")
+
   if _jobOpts != '':
     _file.write("# User specified job options\n")
     for jo in _jobOpts.split(":"): _file.write("%s\n"%jo)

@@ -151,3 +151,24 @@ globalXSBRMap['STXS']['THQ_FWDH'] = {'mode':'tHq','factor':0.0279}
 globalXSBRMap['STXS']['THQ'] = {'mode':'tHq','factor':0.9721}
 globalXSBRMap['STXS']['THW_FWDH'] = {'mode':'tHW','factor':0.0106}
 globalXSBRMap['STXS']['THW'] = {'mode':'tHW','factor':0.9894}
+
+
+# For tth_th_cp_Analysis: use 13.6 TeV cross sections and branching fraction
+globalXSBRMap['tth_th_cp_Analysis'] = od()
+globalXSBRMap['tth_th_cp_Analysis']['decay'] = {'mode':'hgg'}
+globalXSBRMap['tth_th_cp_Analysis']['GG2H'] = {'mode':'constant','factor':51.96}
+globalXSBRMap['tth_th_cp_Analysis']['VBF'] = {'mode':'constant','factor':4.067}
+globalXSBRMap['tth_th_cp_Analysis']['VH'] = {'mode':'constant','factor':2.3781}
+globalXSBRMap['tth_th_cp_Analysis']['TTH'] = {'mode':'constant','factor':0.5638}
+globalXSBRMap['tth_th_cp_Analysis']['tHqLep'] = {'mode':'constant','factor': 0.0832 * 0.3258}
+globalXSBRMap['tth_th_cp_Analysis']['tHqHad'] = {'mode':'constant','factor': 0.0832 * (1-0.3258)}
+globalXSBRMap['tth_th_cp_Analysis']['tHW'] = {'mode':'constant','factor':0.0172}
+globalXSBRMap['tth_th_cp_Analysis']['bbh'] = {'mode':'constant','factor':0.5213}
+globalXSBRMap['tth_th_cp_Analysis']['ggh_incl'] = {'mode':'constant','factor':51.96}
+globalXSBRMap['tth_th_cp_Analysis']['vbf_incl'] = {'mode':'constant','factor':4.067}
+globalXSBRMap['tth_th_cp_Analysis']['vh_incl'] = {'mode':'constant','factor':2.3781}
+globalXSBRMap['tth_th_cp_Analysis']['tth_incl'] = {'mode':'constant','factor':0.5638}
+globalXSBRMap['tth_th_cp_Analysis']['tHqLep_incl'] = {'mode':'constant','factor': 0.0832 * 0.3258}
+globalXSBRMap['tth_th_cp_Analysis']['tHqHad_incl'] = {'mode':'constant','factor': 0.0832 * (1-0.3258)}
+globalXSBRMap['tth_th_cp_Analysis']['tHW_incl'] = {'mode':'constant','factor':0.0172}
+globalXSBRMap['tth_th_cp_Analysis']['bbh_incl'] = {'mode':'constant','factor':0.5213}

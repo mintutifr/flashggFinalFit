@@ -240,3 +240,26 @@ globalReplacementMap["STXS"]["catRVMap"]["RECO_WH_LEP_PTV_75_150_Tag1"] = "RECO_
 globalReplacementMap["STXS"]["catRVMap"]["RECO_WH_LEP_PTV_GT150_Tag0"] = "RECO_WH_LEP_PTV_GT150_Tag0"
 globalReplacementMap["STXS"]["catRVMap"]["RECO_ZH_LEP_Tag0"] = "RECO_ZH_LEP_Tag0"
 globalReplacementMap["STXS"]["catRVMap"]["RECO_ZH_LEP_Tag1"] = "RECO_ZH_LEP_Tag1"
+
+
+# tth_th_cp_Analysis analysis
+
+# For WRONG VERTEX SCENARIO:
+#  * single proc x cat for wrong vertex since for dZ > 1cm shape independent of proc x cat
+#  * use proc x cat with highest number of WV events
+globalReplacementMap["tth_th_cp_Analysis"] = od()
+globalReplacementMap["tth_th_cp_Analysis"]['procWV'] = "TTH"
+globalReplacementMap["tth_th_cp_Analysis"]['catWV'] = "ttH_had_CP_even"
+# For RIGHT VERTEX SCENARIO
+#  * default mapping is to use diagonal process from given category 
+#  * if few events in diagonal process then may need to change the category aswell (see catRVMap)
+#  * map must contain entry for all cats being processed (for replacement proc and cat)
+globalReplacementMap["tth_th_cp_Analysis"]['procRVMap'] = od()
+globalReplacementMap["tth_th_cp_Analysis"]["procRVMap"]["ttH_had_CP_even"] = "TTH"
+globalReplacementMap["tth_th_cp_Analysis"]["procRVMap"]["tH_had_CP_even"] = "TTH"
+
+
+# Replacement categories for RV
+globalReplacementMap["tth_th_cp_Analysis"]["catRVMap"] = od()
+globalReplacementMap["tth_th_cp_Analysis"]["catRVMap"]["ttH_had_CP_even"] = "ttH_had_CP_even"
+globalReplacementMap["tth_th_cp_Analysis"]["catRVMap"]["tH_had_CP_even"] = "ttH_had_CP_even"

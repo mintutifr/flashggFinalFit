@@ -5,9 +5,9 @@ _year = '2022preEE'
 signalScriptCfg = {
   
   # Setup
-  'inputWSDir':'PATH_TO_INPUTS/workspaces/signal_%s'%_year,
-  'procs':'auto', # if auto: inferred automatically from filenames
-  'cats':'auto', # if auto: inferred automatically from (0) workspace
+  'inputWSDir':'/eos/home-m/mikumar/Final_fits/tutrial_workspace/workspaces/signal_%s'%_year,
+  'procs': 'auto', #'auto', # if auto: inferred automatically from filenames
+  'cats': 'EBEB_lowR9highR9', #'auto', # if auto: inferred automatically from (0) workspace
   'ext':'tutorial_%s'%_year,
   'analysis':'tutorial', # To specify which replacement dataset mapping (defined in ./python/replacementMap.py)
   'year':'%s'%_year, # Use 'combined' if merging all years: not recommended
@@ -20,7 +20,7 @@ signalScriptCfg = {
   'smears':'Smearing', # separate nuisance per year
 
   # Job submission options
-  'batch':'condor', # ['condor','SGE','IC','local']
+  'batch':'local', # ['condor','SGE','IC','local']
   'queue':'espresso',
 
 }
