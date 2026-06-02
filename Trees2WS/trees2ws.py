@@ -164,6 +164,7 @@ for cat in cats:
 
   # Concatenate current dataframes
   df = pandas.concat(dfs.values(), axis=1)
+  df = df.drop(columns=["weight_LHEPdf", "weight_LHEScale","weight_central","weight_nominal"], errors="ignore")
 
   # Add STXS splitting var if splitting necessary
   if opt.doSTXSSplitting: df[stxsVar] = t.arrays(stxsVar, library='pd')
