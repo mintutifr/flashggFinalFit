@@ -535,7 +535,7 @@ def plotSignalModel(_hists,_opt,_outdir=".",offset=0.02):
   lat0.SetNDC()
   lat0.SetTextSize(0.045)
   lat0.DrawLatex(0.15,0.92,"#bf{CMS} #it{%s}"%_opt.label)
-  lat0.DrawLatex(0.77,0.92,"%s TeV"%(sqrts__.split("TeV")[0]))
+  lat0.DrawLatex(0.77,0.92,"13.6 TeV")#%(sqrts__.split("TeV")[0]))
   lat0.DrawLatex(0.16+offset,0.83,"H #rightarrow #gamma#gamma")
 
   # Load translations

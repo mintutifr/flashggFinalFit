@@ -1,11 +1,10 @@
 # Config file: options for signal fitting
 
-_year = '2022preEE'
+_year = '2022postEE'
 
 signalScriptCfg = {
   
   # Setup
-  # 'inputWSDir':'/eos/home-m/mikumar/Final_fits/CMSSW_14_1_0_pre4/src/flashggFinalFit/Trees2WS/outputForFinalFits_Test/root/ttH_%s/ws_TTH/'%_year,
   'inputWSDir':'/eos/user/m/mikumar/Final_fits/outputForFinalFits_25June2026/workspaces/%s/'%_year,
   'procs': 'auto', #'auto', # if auto: inferred automatically from filenames
   'cats': 'auto', #'ttH_lep0_CP_even', #'auto', # if auto: inferred automatically from (0) workspace
