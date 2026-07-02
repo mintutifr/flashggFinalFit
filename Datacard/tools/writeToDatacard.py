@@ -46,6 +46,8 @@ def writeProcesses(f,d,options):
       lbin_procXcat += "%-55s "%cat
       lproc += "%-55s "%r['proc']
       if r['proc'] == "bkg_mass": lprocid += "%-55s "%"1"
+      elif "ggH" in r['proc']:
+        lprocid += "%-55s "%"2"
       else:
         lprocid += "%-55s "%sigID
         sigID -= 1

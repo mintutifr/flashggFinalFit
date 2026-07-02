@@ -1,12 +1,11 @@
 # Config file: options for signal fitting
 
 backgroundScriptCfg = {
-  
   # Setup
-  'inputWS':'/eos/home-m/mikumar/Final_fits/CMSSW_14_1_0_pre4/src/flashggFinalFit/tutrial_workspace//workspaces/data/allData_2022preEE.root', # location of 'allData.root' file
-  'cats':'EBEB_lowR9highR9',#'auto', # auto: automatically inferred from input ws
+  'inputWS':'/eos/user/m/mikumar/Final_fits/outputForFinalFits_25June2026/root/Data/ws/allData.root', # location of 'allData.root' file
+  'cats': 'ttH_had0_CP_even,ttH_had0_CP_odd', #'auto', #'ttH_had0_CP_even',#'auto', # auto: automatically inferred from input ws
   'catOffset':0, # add offset to category numbers (useful for categories from different allData.root files)  
-  'ext':'tutorial', # extension to add to output directory
+  'ext':'tth_th_cp_Analysis', # extension to add to output directory
   'year':'combined', # Use combined when merging all years in category (for plots)
 
   # Job submission options

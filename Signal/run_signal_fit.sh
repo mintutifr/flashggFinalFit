@@ -7,7 +7,7 @@ source ../setup.sh
 years=("2022preEE") #"2022preEE" "2022postEE" "2023preBPix" "2023postBPix" "2024")
 for year in ${years[@]}; do
     # F-test
-    #python3 RunSignalScripts.py --inputConfig config_${year}.py --mode fTest --modeOpts "--doPlots"
+    # python3 RunSignalScripts.py --inputConfig config_${year}.py --mode fTest --modeOpts "--doPlots"
 
     # Calculating the photon shape systematics
     # python3 RunSignalScripts.py --inputConfig config_${year}.py --mode calcPhotonSyst 
@@ -16,10 +16,11 @@ for year in ${years[@]}; do
     # python3 RunSignalScripts.py --inputConfig config_${year}.py --mode signalFit --modeOpts "--doPlots --skipSystematics --replacementThreshold 10 --skipVertexScenarioSplit --nBins 160 "  --groupSignalFitJobsByCat
 
     # Running the packager#
-    python3 RunPackager.py --cats ttH_had0_CP_even,ttH_had0_CP_mix,ttH_had0_CP_odd,ttH_had1_CP_even,ttH_had1_CP_mix,ttH_had1_CP_odd,ttH_lep0_CP_even,ttH_lep0_CP_mix,ttH_lep0_CP_odd,ttH_lep1_CP_even,ttH_lep1_CP_mix,ttH_lep1_CP_odd --exts tth_th_cp_Analysis_${year} --mergeYears --batch local --massPoints 125
-
+    # python3 RunPackager.py --cats ttH_had0_CP_even,ttH_had0_CP_mix,ttH_had0_CP_odd,ttH_had1_CP_even,ttH_had1_CP_mix,ttH_had1_CP_odd,ttH_lep0_CP_even,ttH_lep0_CP_mix,ttH_lep0_CP_odd,ttH_lep1_CP_even,ttH_lep1_CP_mix,ttH_lep1_CP_odd --exts tth_th_cp_Analysis_${year} --mergeYears --batch local --massPoints 125
+    # python3 RunPackager.py --cats ttH_had0_CP_even,ttH_had0_CP_odd --exts tth_th_cp_Analysis_${year} --mergeYears --batch local --massPoints 125
+    
     #Signal model plots
-    # for cat in ttH_had_CP_even tH_had_CP_even ttH_lep_CP_even tH_lep_CP_even; do python3 RunPlotter.py --procs all --years 2022preEE --cats $cat --ext packaged ; done
+    # for cat in ttH_had0_CP_even ttH_had0_CP_odd ; do python3 RunPlotter.py --procs all --years 2022preEE --cats $cat --ext packaged ; done
 done
 
 
