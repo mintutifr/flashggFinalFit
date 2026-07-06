@@ -40,6 +40,7 @@ def writeProcesses(f,d,options):
     lbin_cat += "%-55s "%cat
     lobs_cat += "%-55s "%"-1"
     sigID = 0
+    bkgID = 2
     # Loop over rows for respective category
     for ir,r in d[d['cat']==cat].iterrows():
       if r['proc'] == "data_obs": continue
@@ -47,7 +48,8 @@ def writeProcesses(f,d,options):
       lproc += "%-55s "%r['proc']
       if r['proc'] == "bkg_mass": lprocid += "%-55s "%"1"
       elif "ggH" in r['proc']:
-        lprocid += "%-55s "%"2"
+        lprocid += "%-55s "%bkgID
+        bkgID+=1
       else:
         lprocid += "%-55s "%sigID
         sigID -= 1

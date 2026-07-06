@@ -22,10 +22,10 @@ samples=(
 # Era list
 eras=(
     "2022preEE"
-    # "2022postEE"
-    # "2023preBPix"
-    # "2023postBPix"
-    # "2024"
+    "2022postEE"
+    "2023preBPix"
+    "2023postBPix"
+    "2024"
 )
 
 # Create output base directory if it doesn't exist

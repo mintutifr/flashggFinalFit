@@ -7,9 +7,9 @@ set -e
 export PYTHONNOUSERSITE=1
 source ../setup.sh
 
-years=("2022preEE") # "2022postEE" "2023preBPix" "2023postBPix" "2024")
-samples=("ttH" "ttH_CPodd") #"tHqHad" "tHqHad_CPodd" "tHqLep" "tHqLep_CPodd" "GluGluH")
-production_mode=("tth" "tthCPodd") # "tHqHad" "tHqHadCPodd" "tHqLep" "tHqLepCPodd" "ggh")
+years=("2022preEE" "2022postEE" "2023preBPix" "2023postBPix" "2024")
+samples=("ttH" "ttH_CPodd" "tHqHad" "tHqHad_CPodd" "tHqLep" "tHqLep_CPodd" "GluGluH")
+production_mode=("tth" "tthCPodd" "tHqHad" "tHqHadCPodd" "tHqLep" "tHqLepCPodd" "ggh")
 yaml_file="outputfiles.yaml"
 
 # Run MC command
