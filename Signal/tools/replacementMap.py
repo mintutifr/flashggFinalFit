@@ -257,9 +257,19 @@ globalReplacementMap["tth_th_cp_Analysis"]['catWV'] = "ttH_had_CP_even"
 globalReplacementMap["tth_th_cp_Analysis"]['procRVMap'] = od()
 globalReplacementMap["tth_th_cp_Analysis"]["procRVMap"]["ttH_had_CP_even"] = "TTH"
 globalReplacementMap["tth_th_cp_Analysis"]["procRVMap"]["tH_had_CP_even"] = "TTH"
+globalReplacementMap["tth_th_cp_Analysis"]["procRVMap"]["ttH_had0_CP_even"] = "TTH"
+globalReplacementMap["tth_th_cp_Analysis"]["procRVMap"]["ttH_had0_CP_odd"] = "tthCPodd"
+globalReplacementMap["tth_th_cp_Analysis"]["procRVMap"]["tHq_had0_CP_even"] = "tHqHad"
+globalReplacementMap["tth_th_cp_Analysis"]["procRVMap"]["tHq_had0_CP_odd"] = "tHqHadCPodd"
+globalReplacementMap["tth_th_cp_Analysis"]["procRVMap"]["tHq_had0_CP_mix"] = "tHqHad"
 
 
 # Replacement categories for RV
 globalReplacementMap["tth_th_cp_Analysis"]["catRVMap"] = od()
 globalReplacementMap["tth_th_cp_Analysis"]["catRVMap"]["ttH_had_CP_even"] = "ttH_had_CP_even"
 globalReplacementMap["tth_th_cp_Analysis"]["catRVMap"]["tH_had_CP_even"] = "ttH_had_CP_even"
+globalReplacementMap["tth_th_cp_Analysis"]["catRVMap"]["ttH_had0_CP_even"] = "ttH_had0_CP_even"
+globalReplacementMap["tth_th_cp_Analysis"]["catRVMap"]["ttH_had0_CP_odd"] = "ttH_had0_CP_odd"
+globalReplacementMap["tth_th_cp_Analysis"]["catRVMap"]["tHq_had0_CP_even"] = "tHq_had0_CP_even"
+globalReplacementMap["tth_th_cp_Analysis"]["catRVMap"]["tHq_had0_CP_odd"] = "tHq_had0_CP_odd"
+globalReplacementMap["tth_th_cp_Analysis"]["catRVMap"]["tHq_had0_CP_mix"] = "tHq_had0_CP_mix"

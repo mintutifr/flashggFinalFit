@@ -166,6 +166,10 @@ XSBRMap['tth_th_cp_Analysis']['tHqLep_incl'] = {'mode':'constant','factor': 0.08
 XSBRMap['tth_th_cp_Analysis']['tHqHad_incl'] = {'mode':'constant','factor': 0.0832 * (1-0.3258)}
 XSBRMap['tth_th_cp_Analysis']['tHW_incl'] = {'mode':'constant','factor':0.0172}
 XSBRMap['tth_th_cp_Analysis']['bbh_incl'] = {'mode':'constant','factor':0.5213}
+XSBRMap['tth_th_cp_Analysis']['tHqHadKt0Ktt0'] = {'mode':'constant','factor':0.6456}
+XSBRMap['tth_th_cp_Analysis']['tHqLepKt0Ktt0'] = {'mode':'constant','factor':0.3151}
+XSBRMap['tth_th_cp_Analysis']['tHqHadKtm1Ktt0'] = {'mode':'constant','factor':0.6456}
+XSBRMap['tth_th_cp_Analysis']['tHqLepKtm1Ktt0'] = {'mode':'constant','factor':0.3151}
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Functions for loading XS*BR below

@@ -154,6 +154,7 @@ globalXSBRMap['STXS']['THW'] = {'mode':'tHW','factor':0.9894}
 
 
 # For tth_th_cp_Analysis: use 13.6 TeV cross sections and branching fraction
+#copied from https://gitlab.cern.ch/fmausolf/hgg_tth_th_cp_analysis/-/blob/master/modules/physicsHelper.py?ref_type=heads#L295
 globalXSBRMap['tth_th_cp_Analysis'] = od()
 globalXSBRMap['tth_th_cp_Analysis']['decay'] = {'mode':'hgg'}
 globalXSBRMap['tth_th_cp_Analysis']['GG2H'] = {'mode':'constant','factor':51.96}
@@ -175,3 +176,7 @@ globalXSBRMap['tth_th_cp_Analysis']['tHqLep_incl'] = {'mode':'constant','factor'
 globalXSBRMap['tth_th_cp_Analysis']['tHqHad_incl'] = {'mode':'constant','factor': 0.0832 * (1-0.3258)}
 globalXSBRMap['tth_th_cp_Analysis']['tHW_incl'] = {'mode':'constant','factor':0.0172}
 globalXSBRMap['tth_th_cp_Analysis']['bbh_incl'] = {'mode':'constant','factor':0.5213}
+globalXSBRMap['tth_th_cp_Analysis']['tHqHadKt0Ktt0'] = {'mode':'constant','factor':0.6456}
+globalXSBRMap['tth_th_cp_Analysis']['tHqLepKt0Ktt0'] = {'mode':'constant','factor':0.3151}
+globalXSBRMap['tth_th_cp_Analysis']['tHqHadKtm1Ktt0'] = {'mode':'constant','factor':0.6456}
+globalXSBRMap['tth_th_cp_Analysis']['tHqLepKtm1Ktt0'] = {'mode':'constant','factor':0.3151}
