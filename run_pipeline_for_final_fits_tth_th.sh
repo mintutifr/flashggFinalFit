@@ -49,6 +49,14 @@ step_5() {
     popd > /dev/null
 }
 
+STEP_DESC[6]="Plot - python3 Datacard/plot_shape.py (plot the signal PDF shape)"
+
+step_6() {
+    pushd "${SCRIPT_DIR}" > /dev/null
+    python3 Datacard/plot_shape.py
+    popd > /dev/null
+}
+
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Expand a --steps spec (e.g. "1", "1-3", "1,3", "1,3-5") into a sorted,
 # deduplicated list of step numbers.

@@ -84,3 +84,12 @@ The above scripts have the full functionality for merging some cats and splittin
 ```
 combineCards.py Datacard_2016.txt Datacard_2017.txt Datacard_2108.txt > Datacard_combined.txt
 ```
+
+
+## Plot the signal PDF shape
+
+Once the signal fit workspace has been produced (see `../Signal`), you can plot the fitted signal PDF shape:
+```
+python3 Datacard/plot_shape.py
+```
+This requires a PyROOT-enabled environment (run inside the CMSSW/`cmsenv` setup). The input workspace, PDF name and output directory are configured at the top of `plot_shape.py`. The resulting plot is saved as a `.pdf` under `Datacard/outputs/`.

@@ -16,7 +16,9 @@ COLUMNS_TO_SKIP = [
     "nominalDataName",
     "modelWSFile",
     "model",
-    "proc"
+    "proc",
+    "rate",
+    "sumw2"
 ]
 
 import pandas as pd
@@ -34,7 +36,7 @@ def compute_yearly_sums_from_txt(txt_file, columns_to_sum=None):
     """
 
     if columns_to_sum is None:
-        columns_to_sum = ["nominal_yield", "sumw2"]
+        columns_to_sum = ["nominal_yield"]
 
     # read table
     df = pd.read_csv(txt_file, sep=r"\s+", engine="python")
@@ -94,7 +96,7 @@ def dump_pickle(pkl_file):
     print(f"Created: {txt_file}")
     write_yearly_summary(
         txt_file,
-        columns_to_sum=["nominal_yield", "sumw2"]
+        columns_to_sum=["nominal_yield"]
     )
 
 
