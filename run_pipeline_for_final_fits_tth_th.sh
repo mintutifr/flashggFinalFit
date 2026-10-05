@@ -25,35 +25,84 @@ step_2() {
     popd > /dev/null
 }
 
-STEP_DESC[3]="Background - ./Background/run_Background_fit.sh (background F-test)"
+STEP_DESC[3]="Plot background - python3 Background/Plot_background.py --cat all (pre-fit background shape, all categories)"
 
 step_3() {
+    pushd "${SCRIPT_DIR}/Background" > /dev/null
+    python3 Plot_background.py --cat all
+    popd > /dev/null
+}
+
+STEP_DESC[4]="Background - ./Background/run_Background_fit.sh (background F-test)"
+
+step_4() {
     pushd "${SCRIPT_DIR}/Background" > /dev/null
     ./run_Background_fit.sh
     popd > /dev/null
 }
 
-STEP_DESC[4]="Datacard - ./Datacard/run_create_datacard.sh (build the datacard)"
+STEP_DESC[5]="Create yields - ./Datacard/run_create_yields.sh (RunYields.py per category, no pruning/datacard yet)"
 
-step_4() {
+step_5() {
     pushd "${SCRIPT_DIR}/Datacard" > /dev/null
-    ./run_create_datacard.sh
+    ./run_create_yields.sh
     popd > /dev/null
 }
 
-STEP_DESC[5]="Move - ./Datacard/run_move_file_to_eos.sh (share the datacard + workspaces on eos)"
+STEP_DESC[6]="Yields table - ./Datacard/run_makeYieldsTables_tthth.sh (build the CP analysis yields/purity table, nominal_yield and true_yield)"
 
-step_5() {
+step_6() {
+    pushd "${SCRIPT_DIR}/Datacard" > /dev/null
+    ./run_makeYieldsTables_tthth.sh
+    ./run_makeYieldsTables_tthth.sh --trueYield
+    popd > /dev/null
+}
+
+STEP_DESC[7]="Event counts - ./Datacard/run_count_mc_events.sh (raw MC event counts per category, one process per category)"
+
+step_7() {
+    pushd "${SCRIPT_DIR}/Datacard" > /dev/null
+    ./run_count_mc_events.sh
+    popd > /dev/null
+}
+
+STEP_DESC[8]="Event counts table - ./Datacard/run_makeEventTables_tthth.sh (build the CP analysis MC event-count table)"
+
+step_8() {
+    pushd "${SCRIPT_DIR}/Datacard" > /dev/null
+    ./run_makeEventTables_tthth.sh
+    popd > /dev/null
+}
+
+STEP_DESC[9]="Build datacard - ./Datacard/run_build_datacard.sh (makeDatacard.py: pruning, systematics, write the datacard)"
+
+step_9() {
+    pushd "${SCRIPT_DIR}/Datacard" > /dev/null
+    ./run_build_datacard.sh
+    popd > /dev/null
+}
+
+STEP_DESC[10]="Move - ./Datacard/run_move_file_to_eos.sh (share the datacard + workspaces on eos)"
+
+step_10() {
     pushd "${SCRIPT_DIR}/Datacard" > /dev/null
     ./run_move_file_to_eos.sh
     popd > /dev/null
 }
 
-STEP_DESC[6]="Plot - python3 Datacard/plot_shape.py (plot the signal PDF shape)"
+STEP_DESC[11]="Plot - python3 Datacard/plot_shape.py (plot the signal PDF shape)"
 
-step_6() {
+step_11() {
     pushd "${SCRIPT_DIR}" > /dev/null
     python3 Datacard/plot_shape.py
+    popd > /dev/null
+}
+
+STEP_DESC[12]="Combine - /run_combine.sh (build the combine workspace and run the fit)"
+
+step_12() {
+    pushd "${SCRIPT_DIR}/Combine" > /dev/null
+    ./run_combine.sh
     popd > /dev/null
 }
 

@@ -4,9 +4,11 @@
 export PYTHONNOUSERSITE=1
 source ../setup.sh
 
-cats=("tHq_had0_CP_even" "ttH_had0_CP_even" "ttH_had0_CP_odd" "tHq_had0_CP_mix")
+# If edit the categories here then edit the categoried in `config_DataCombine.py` as well
+cats=( "ttH_had0_CP_even" "ttH_had0_CP_odd") # "tHq_had0_CP_mix" "tHq_had0_CP_even")
 
 # F-test
+# output stored in `outdir_tth_th_cp_Analysis/`
 python3 RunBackgroundScripts.py --inputConfig config_DataCombine.py --mode fTestParallel
 
 # plots

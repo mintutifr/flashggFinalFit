@@ -45,6 +45,9 @@ def compute_yearly_sums_from_txt(txt_file, columns_to_sum=None):
     if "year" not in df.columns:
         raise ValueError("Column 'year' not found in file")
 
+    # drop rows that are not tied to a specific year (e.g. merged bkg/data rows)
+    df = df[df["year"] != "merged"]
+
     # convert requested columns safely
     valid_cols = []
     for col in columns_to_sum:
@@ -59,6 +62,9 @@ def compute_yearly_sums_from_txt(txt_file, columns_to_sum=None):
 
     # group by year and sum
     result = df.groupby("year")[valid_cols].sum()
+
+    # append a row with the sum across all years
+    result.loc["Total"] = result[valid_cols].sum()
 
     return result
 
@@ -87,6 +93,10 @@ def dump_pickle(pkl_file):
             # drop only columns that exist
             cols_to_drop = [c for c in COLUMNS_TO_SKIP if c in data.columns]
             filtered = data.drop(columns=cols_to_drop)
+
+            # drop rows not tied to a specific year (e.g. merged bkg/data rows)
+            if "year" in filtered.columns:
+                filtered = filtered[filtered["year"] != "merged"]
 
             out.write(filtered.to_string(index=False))
 
