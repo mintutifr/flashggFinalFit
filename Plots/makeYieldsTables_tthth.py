@@ -4,6 +4,11 @@
 #    definition in run_pipeline_for_final_fits_tth_th.sh (Signal/config_2024.py
 #    'cats', Datacard/RunYields.py 'procs' and Datacard/yields_tth_th_cp_Analysis/).
 #  * Read in per-category pandas dataframes (pkl) produced by Datacard/RunYields.py
+#  * Background has no MC yield to read from those pkls (Datacard/makeYields.py
+#    never fills a real nominal_yield for type=='bkg' rows), so the Background
+#    column instead comes from getBkgYields_tthth.py or expected_bkg_yield.py, which
+#.   reads the observed data count straight from the fitted background workspace
+#    (Background/outdir_tth_th_cp_Analysis/CMS-HGG_multipdf_<cat>.root).
 
 import os
 import re
@@ -15,6 +20,9 @@ from optparse import OptionParser
 from collections import OrderedDict as od
 
 import pandas as pd
+
+from getBkgYields_tthth import getBkgYields
+from expected_bkg_yield import getExpectedBkgYields
 
 print(" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ttH/tH CP YIELDS TABLE ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ")
 def leave():
@@ -35,29 +43,30 @@ CP_CATEGORIES["ttH_had0_CP_odd"]  = "ttH_had0"
 # datacard interpolates over an arbitrary CP-mixing angle, so besides the mode
 # fraction it's useful to see the CP-odd/CP-even split within that mode too.
 PRODUCTION_MODE_PROCS = od()
-PRODUCTION_MODE_PROCS["ggH"]     = ["GG2H"]
+PRODUCTION_MODE_PROCS["GG2H"]     = ["GG2H"]
 PRODUCTION_MODE_PROCS["ttH"]     = ["TTH", "tthCPodd"]
 # tHqHadKt0Ktt0/tHqHadKtm1Ktt0 (and the lep equivalents) are additional tHq
 # anomalous-coupling (kt/ktt) benchmark samples from the same procs list as the
 # CP-odd ones (Signal/run_signal_fit.sh) - group them with their production mode.
+
 # PRODUCTION_MODE_PROCS["tHq_had"] = ["tHqHad", "tHqHadCPodd", "tHqHadKt0Ktt0", "tHqHadKtm1Ktt0"]
 # PRODUCTION_MODE_PROCS["tHq_lep"] = ["tHqLep", "tHqLepCPodd", "tHqLepKt0Ktt0", "tHqLepKtm1Ktt0"]
 
-PRODUCTION_MODE_PROCS["tHq_had"] = ["tHqHad", "tHqHadCPodd"]#, "tHqHadKt0Ktt0", "tHqHadKtm1Ktt0"]
-PRODUCTION_MODE_PROCS["tHq_lep"] = ["tHqLep", "tHqLepCPodd"]#, "tHqLepKt0Ktt0", "tHqLepKtm1Ktt0"]
+PRODUCTION_MODE_PROCS["tHq"] = ["tHqHad", "tHqHadCPodd", "tHqLep", "tHqLepCPodd"]#, "tHqHadKt0Ktt0", "tHqHadKtm1Ktt0"]
+# PRODUCTION_MODE_PROCS["tHq_lep"] = ["tHqLep", "tHqLepCPodd"]#, "tHqLepKt0Ktt0", "tHqLepKtm1Ktt0"]
 
 # CP-even/CP-odd benchmark pair for each mode that has one (mode -> (even proc, odd proc))
 CP_BENCHMARK_PROCS = od()
 CP_BENCHMARK_PROCS["ttH"]     = ("TTH", "tthCPodd")
-CP_BENCHMARK_PROCS["tHq_had"] = ("tHqHad", "tHqHadCPodd")
-CP_BENCHMARK_PROCS["tHq_lep"] = ("tHqLep", "tHqLepCPodd")
+CP_BENCHMARK_PROCS["tHq"] = ("tHqHad", "tHqHadCPodd","tHqLep", "tHqLepCPodd")
+# CP_BENCHMARK_PROCS["tHq_lep"] = ("tHqLep", "tHqLepCPodd")
 
 # Production mode each category is designed to select (drives the "target purity" column)
 CATEGORY_TARGET_MODE = od()
 for _cat in CP_CATEGORIES:
   if _cat.startswith("ttH_"): CATEGORY_TARGET_MODE[_cat] = "ttH"
-  elif "tHq_lep" in _cat: CATEGORY_TARGET_MODE[_cat] = "tHq_lep"
-  elif "tHq_had" in _cat: CATEGORY_TARGET_MODE[_cat] = "tHq_had"
+  elif "tHq_" in _cat: CATEGORY_TARGET_MODE[_cat] = "tHq"
+  # elif "tHq_had" in _cat: CATEGORY_TARGET_MODE[_cat] = "tHq_had"
   else: CATEGORY_TARGET_MODE[_cat] = None
 
 def get_options():
@@ -78,6 +87,13 @@ def get_options():
   parser.add_option("--analysis", dest="analysis", default='tth_th_cp_Analysis', help="Analysis name in Datacard/tools/XSBR.py's XSBRMap, used to look up XS*BR when --trueYield is set")
   parser.add_option("--catLabels", dest="catLabels", default=None, help="JSON mapping category name -> display label (optional, e.g. your own cats_latex.json)")
   parser.add_option("--modeLabels", dest="modeLabels", default=None, help="JSON mapping production-mode name (ggH/ttH/tHq_had/tHq_lep) -> display label (optional)")
+  parser.add_option("--skipBkgCol", dest="skipBkgCol", default=False, action="store_true", help="Don't add the Background column (skips reading the Background/ fit workspaces entirely)")
+  parser.add_option("--bkgWSDir", dest="bkgWSDir", default="../Background/outdir_tth_th_cp_Analysis", help="Directory of fitted background workspaces (CMS-HGG_multipdf_<cat>.root), from Background/run_Background_fit.sh - used for the Background column (see getBkgYields_tthth.py)")
+  parser.add_option("--bkgWSName", dest="bkgWSName", default="multipdf", help="Name of the RooWorkspace object inside each background fit file")
+  parser.add_option("--blindWindow", dest="blindWindow", default="115,135", help="Signal mass window excluded from the Background column by default: low,high. Pass '' to disable")
+  parser.add_option("--unblindBkg", dest="unblindBkg", default=False, action="store_true", help="Background column counts every data event, including the blind window (default: blind window excluded)")
+  parser.add_option("--expected_bkg", dest="expected_bkg", default=False, action="store_true", help="Add an Expected Bkg column: the best-fit background shape's density x normalization at --bkgMass (see Plots/expected_bkg_yield.py), alongside the observed-data Background column")
+  parser.add_option("--bkgMass", dest="bkgMass", default=125.09, type="float", help="Mass point [GeV] the Expected Bkg column is evaluated at when --expected_bkg is set (default: 125.09)")
   return parser.parse_args()
 (opt,args) = get_options()
 
@@ -149,10 +165,26 @@ if opt.catInfoPkl != '':
     leave()
   with open(opt.catInfoPkl, "rb") as fin: catInfoDf = pickle.load(fin)
 
+# Background column: a single number per category, from one of three mutually
+# exclusive sources (default: observed data, blind window excluded; --unblindBkg:
+# observed data, full range; --expected_bkg: best-fit background shape density x
+# norm at --bkgMass, see Plots/expected_bkg_yield.py) - None where that
+# category's background fit hasn't been run yet (Background/run_Background_fit.sh).
+if opt.expected_bkg and opt.unblindBkg:
+  print(" --> [ERROR] --expected_bkg and --unblindBkg are mutually exclusive (pick one source for the Background column). Leaving")
+  leave()
+
+if not opt.skipBkgCol:
+  if opt.expected_bkg:
+    bkgYields = getExpectedBkgYields(list(CP_CATEGORIES), opt.bkgWSDir, opt.bkgWSName, opt.bkgMass)
+  else:
+    bkgYields = getBkgYields(list(CP_CATEGORIES), opt.bkgWSDir, opt.bkgWSName, opt.blindWindow, opt.unblindBkg)
+
 # Initiate pandas dataframe
 _columns = ['cat', 'nominal_yield', 'target_mode', 'target_mode_yield']
 for mode in PRODUCTION_MODE_PROCS: _columns.append("%s_yield"%mode)
 _columns.append('cp_odd_yield')
+if not opt.skipBkgCol: _columns.append('bkg_yield')
 if opt.catInfoPkl != '': _columns.extend(['effSigma', 'bkg', 'SoverSplusB'])
 tableDf = pd.DataFrame(columns=_columns)
 
@@ -199,6 +231,7 @@ for cat in CP_CATEGORIES:
   vals = [cat, catYield, targetMode, targetModeYield]
   for mode in PRODUCTION_MODE_PROCS: vals.append(modeYields[mode])
   vals.append(cpOddYield)
+  if not opt.skipBkgCol: vals.append(bkgYields[cat])
   if opt.catInfoPkl != '': vals.extend([effSigma,bkgPerGeV,sOverSplusB])
   tableDf.loc[len(tableDf)] = vals
 
@@ -206,18 +239,20 @@ if len(tableDf) == 0:
   print(" --> [ERROR] No categories with signal yields found. Leaving")
   leave()
 
-# Make table: cat, total, target-mode purity, [mode fraction]*, CP-odd(target), [effSigma, S/S+B]
+# Make table: cat, total, target-mode purity, [mode fraction]*, CP-odd(target), [Background], [effSigma, S/S+B]
 os.makedirs("Tables", exist_ok=True)
 nColumns = 4 + len(PRODUCTION_MODE_PROCS)
+if not opt.skipBkgCol: nColumns += 1
 if opt.catInfoPkl != '': nColumns += 2
 outSuffix = "_trueYield" if opt.trueYield else ""
 fout = open("Tables/yields_table_lite_tthth%s%s.txt"%(opt.ext,outSuffix),"w")
 fout.write("\\begin{tabular}{%s}\n"%("l|"+("c"*(nColumns-1))))
 fout.write("    \\multirow{3}{*}{Analysis categories} & \\multicolumn{%g}{c}{ttH+tH CP analysis expected signal} \\\\ \n"%(nColumns-1))
 modeHeader = " & ".join(Translate(mode,modeLabels) for mode in PRODUCTION_MODE_PROCS)
+bkgHeader = " & \\multirow{2}{*}{\\begin{tabular}[c]{@{}c@{}}BKG\\\\(GeV$^{-1})$\\end{tabular}}" if not opt.skipBkgCol else ""
 tailCols = " & \\multirow{2}{*}{\\begin{tabular}[c]{@{}c@{}}$\\sigma_{\\rm{eff}}$\\\\(GeV)\\end{tabular}} & \\multirow{2}{*}{S/(S+B)}" if opt.catInfoPkl != '' else ""
-fout.write("     & \\multirow{2}{*}{Total} & \\multirow{2}{*}{\\begin{tabular}[c]{@{}c@{}}Target\\\\mode\\end{tabular}} & \\multicolumn{%g}{c}{Production Mode Fractions} & \\multirow{2}{*}{\\begin{tabular}[c]{@{}c@{}}CP-odd\\\\(target)\\end{tabular}}%s \\\\ \n"%(len(PRODUCTION_MODE_PROCS),tailCols))
-fout.write("     & & & %s &%s \\\\ \\hline \n"%(modeHeader, " &" if opt.catInfoPkl != '' else ""))
+fout.write("     & \\multirow{2}{*}{Total} & \\multirow{2}{*}{\\begin{tabular}[c]{@{}c@{}}Target\\\\mode\\end{tabular}} & \\multicolumn{%g}{c}{Production Mode Fractions} & \\multirow{2}{*}{\\begin{tabular}[c]{@{}c@{}}CP-odd\\\\(target)\\end{tabular}}%s%s \\\\ \n"%(len(PRODUCTION_MODE_PROCS),bkgHeader,tailCols))
+fout.write("     & & & %s &%s%s \\\\ \\hline \n"%(modeHeader, " &" if not opt.skipBkgCol else "", " &" if opt.catInfoPkl != '' else ""))
 
 # Add rows, separating the tHq_had0 and ttH_had0 blocks with a \cmsTabSkip
 rows = list(tableDf.iterrows())
@@ -231,6 +266,8 @@ for idx, (ir,r) in enumerate(rows):
     modePct = 100*(r['%s_yield'%mode]/r['nominal_yield']) if r['nominal_yield'] else 0.
     catLine += " & -" if modePct <= 0. else " & %.1f\\%%"%modePct
   catLine += " & %.1f\\%%"%(100*(r['cp_odd_yield']/r['target_mode_yield'])) if r['target_mode_yield'] else " & -"
+  if not opt.skipBkgCol:
+    catLine += " & -" if r['bkg_yield'] is None else " & %.2f"%r['bkg_yield']
   if opt.catInfoPkl != '':
     catLine += " & %.2f & %.2f"%(r['effSigma'],r['SoverSplusB'])
   fout.write("%s \\\\ \n"%catLine)

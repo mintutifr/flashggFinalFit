@@ -16,5 +16,5 @@ source ../setup.sh
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 pushd "${SCRIPT_DIR}/../Plots" > /dev/null
-python3 makeYieldsTables_tthth.py --ext _tth_th_cp_Analysis "$@"
+python3 makeYieldsTables_tthth.py --ext _tth_th_cp_Analysis --expected_bkg "$@"
 popd > /dev/null
