@@ -5,8 +5,8 @@ _year = '2024'
 signalScriptCfg = {
   
   # Setup
-  'inputWSDir':'/eos/user/m/mikumar/Final_fits/outputForFinalFits_7Sep2026/workspaces/%s/'%_year,
-  'procs': 'GG2H,TTH,tHqHad,tHqHadCPodd,tHqLep,tHqLepCPodd,tthCPodd', #'auto', #'auto', # if auto: inferred automatically from filenames
+  'inputWSDir':'/eos/user/m/mikumar/Final_fits/outputForFinalFits_29Oct2026/workspaces/%s/'%_year,
+  'procs': 'GG2H,TTH,tHqHad,tHqHadCPodd,tHqLep,tHqLepCPodd,tthCPodd,BBH,VBF', # no 'vh': VH sample doesn't exist for 2024 (no raw ntuple produced upstream)
   'cats': 'ttH_had0_CP_even,ttH_had0_CP_odd',#tHq_had0_CP_odd,tHq_had0_CP_even,tHq_had0_CP_mix', #'auto', #'ttH_lep0_CP_even', #'auto', # if auto: inferred automatically from (0) workspace
   'ext':'tth_th_cp_Analysis', #_%s'%_year,
   'analysis':'tth_th_cp_Analysis', # To specify which replacement dataset mapping (defined in ./python/replacementMap.py)

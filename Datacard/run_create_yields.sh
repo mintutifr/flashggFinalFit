@@ -16,7 +16,7 @@ fi
 export PYTHONNOUSERSITE=1
 source ../setup.sh
 
-PATH_TO_INPUTS=/eos/home-m/mikumar/Final_fits/outputForFinalFits_7Sep2026/
+PATH_TO_INPUTS=/eos/home-m/mikumar/Final_fits/outputForFinalFits_29Oct2026/
 
 years=("2022preEE" "2022postEE" "2023preBPix" "2023postBPix" "2024")
 cats=("ttH_had0_CP_even" "ttH_had0_CP_odd") # "tHq_had0_CP_even"  "tHq_had0_CP_mix")
@@ -28,7 +28,7 @@ for year in "${years[@]}"; do
         python3 RunYields.py \
         --inputWSDirMap  "2022preEE=${PATH_TO_INPUTS}/workspaces/2022preEE/,2022postEE=${PATH_TO_INPUTS}/workspaces/2022postEE/,2023preBPix=${PATH_TO_INPUTS}/workspaces/2023preBPix/,2023postBPix=${PATH_TO_INPUTS}/workspaces/2023postBPix/,2024=${PATH_TO_INPUTS}/workspaces/2024/" \
             --cats ${cat} \
-            --procs 'GG2H,TTH,tHqHad,tHqHadCPodd,tHqLep,tHqLepCPodd,tthCPodd' \
+            --procs 'GG2H,TTH,tHqHad,tHqHadCPodd,tHqLep,tHqLepCPodd,tthCPodd,BBH,VBF,vh' \
             --ext tth_th_cp_Analysis \
             --mergeYears \
             --skipCOWCorr \

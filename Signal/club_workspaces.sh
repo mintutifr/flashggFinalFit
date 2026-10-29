@@ -1,25 +1,28 @@
 #!/bin/bash
 
 # Base input directory
-INPUT_BASE="/eos/user/m/mikumar/Final_fits/outputForFinalFits_7Sep2026/root"
+INPUT_BASE="/eos/user/m/mikumar/Final_fits/outputForFinalFits_29Oct2026/root"
 
 # Base output directory
-OUTPUT_BASE="/eos/user/m/mikumar/Final_fits/outputForFinalFits_7Sep2026/workspaces"
+OUTPUT_BASE="/eos/user/m/mikumar/Final_fits/outputForFinalFits_29Oct2026/workspaces"
 
 # Sample list
 samples=(
-    "GluGluH"
     "ttH"
     "ttH_CPodd"
     "tHqHad"
     "tHqHad_CPodd"
     "tHqLep"
     "tHqLep_CPodd"
-    # "tHqHad_Kt0Ktt0"
-    # "tHqHad_Ktm1Ktt0"
-    # "tHqLep_Kt0Ktt0"
-    # "tHqLep_Ktm1Ktt0"
-    # "tHW"
+    "tHqHad_Kt0Ktt0"
+    "tHqHad_Ktm1Ktt0"
+    "tHqLep_Kt0Ktt0"
+    "tHqLep_Ktm1Ktt0"
+    "tHW"
+    "GluGluH"
+    "bbH"
+    "VBFH"
+    "VH"
     # "tHW_CPodd"
 )
 

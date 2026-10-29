@@ -15,7 +15,7 @@ ROOT.gStyle.SetOptStat(0)
 ROOT.gStyle.SetPadTickX(1)
 ROOT.gStyle.SetPadTickY(1)
 
-DEFAULT_INPUT = "/eos/home-m/mikumar/Final_fits/outputForFinalFits_7Sep2026/root/Data/ws/allData.root"
+DEFAULT_INPUT = "/eos/home-m/mikumar/Final_fits/outputForFinalFits_29Oct2026/root/Data/ws/allData.root"
 DEFAULT_CATS = "ttH_had0_CP_even,ttH_had0_CP_odd"
 COLORS = [ROOT.kBlack, ROOT.kRed+1, ROOT.kAzure+2, ROOT.kGreen+2, ROOT.kOrange+1, ROOT.kMagenta+1, ROOT.kCyan+2, ROOT.kGray+2]
 
@@ -70,16 +70,19 @@ def get_data_graph(w, cat, xvar, mlow, mhigh, nbins, blind):
   g.SetName("g_data_%s"%cat)
   ip = 0
   hmax = 0.
+  nEvents, nEventsTotal = 0., 0.
   for b in range(1, h.GetNbinsX()+1):
     x = h.GetBinCenter(b)
+    y = h.GetBinContent(b)
+    nEventsTotal += y
     if blind and blind[0] <= x <= blind[1]:
       continue
-    y = h.GetBinContent(b)
+    nEvents += y
     g.SetPoint(ip, x, y)
     g.SetPointError(ip, h.GetBinWidth(b)/2., h.GetBinError(b))
     hmax = max(hmax, y)
     ip += 1
-  return g, hmax
+  return g, hmax, nEvents, nEventsTotal
 
 
 def plot(graphs, hmaxes, cats, mlow, mhigh, nbins, blind, outpath):
@@ -147,7 +150,16 @@ def main():
     cats = [opt.cat]
   else:
     cats = [c.strip() for c in opt.cats.split(",") if c.strip()]
-  graphs, hmaxes = zip(*[get_data_graph(w, cat, opt.xvar, mlow, mhigh, opt.nBins, blind) for cat in cats])
+  graphs, hmaxes, nEventsList, nEventsTotalList = zip(*[get_data_graph(w, cat, opt.xvar, mlow, mhigh, opt.nBins, blind) for cat in cats])
+
+  windowDesc = "blind window [%g,%g] excluded"%(blind[0],blind[1]) if blind else "no blind window"
+  print(" --> Events per category (%s):"%windowDesc)
+  for cat, nEvents, nEventsTotal in zip(cats, nEventsList, nEventsTotalList):
+    if blind: print("       %-20s  %8.1f   (%.1f including blind window)"%(cat, nEvents, nEventsTotal))
+    else: print("       %-20s  %8.1f"%(cat, nEvents))
+  if len(cats) > 1:
+    if blind: print("       %-20s  %8.1f   (%.1f including blind window)"%("Total", sum(nEventsList), sum(nEventsTotalList)))
+    else: print("       %-20s  %8.1f"%("Total", sum(nEventsList)))
 
   safe_cat = opt.cat.translate(str.maketrans("*?[]", "____")) if opt.cat else None
   suffix = ("_%s"%safe_cat) if safe_cat else "_allCats"

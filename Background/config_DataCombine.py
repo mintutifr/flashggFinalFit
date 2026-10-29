@@ -2,7 +2,7 @@
 
 backgroundScriptCfg = {
   # Setup
-  'inputWS':'/eos/user/m/mikumar/Final_fits/outputForFinalFits_7Sep2026/root/Data/ws/allData.root', # location of 'allData.root' file
+  'inputWS':'/eos/user/m/mikumar/Final_fits/outputForFinalFits_29Oct2026/root/Data/ws/allData.root', # location of 'allData.root' file
   'cats': 'ttH_had0_CP_even,ttH_had0_CP_odd', #'tHq_had0_CP_odd,tHq_had0_CP_even,tHq_had0_CP_mix', #'auto', #'ttH_had0_CP_even',#'auto', # auto: automatically inferred from input ws
   'catOffset':0, # add offset to category numbers (useful for categories from different allData.root files)  
   'ext':'tth_th_cp_Analysis', # extension to add to output directory

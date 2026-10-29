@@ -39,7 +39,7 @@ for cat in "${cats[@]}"; do
 done
 
 # procs=("GG2H" "TTH" "tHqHadCPodd" "tHqHad" "tHqLepCPodd" "tHqLep",tHqHadKt0Ktt0,tHqHadKtm1Ktt0,tHqLepKt0Ktt0,tHqLepKtm1Ktt0)
-# # if you are adding new processes, make sure it is also addded to club_workspaces.sh and tool/XSBRMap.py is updated 
+# # if you are adding new processes, make sure it is also addded to club_workspaces.sh and tools/XSBRMap.py is updated
 
 # # Plotting the packaged signal model for each year and category
 # # This way the script reweights each contributing process's fit 

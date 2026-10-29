@@ -32,8 +32,8 @@ def leave():
 # Analysis categories (Signal/config_2024.py: cats), tagged with their base group
 # so related categories can be separated visually in the output table.
 CP_CATEGORIES = od()
-CP_CATEGORIES["tHq_had0_CP_even"] = "tHq_had0"
-CP_CATEGORIES["tHq_had0_CP_mix"]  = "tHq_had0"
+# CP_CATEGORIES["tHq_had0_CP_even"] = "tHq_had0"
+# CP_CATEGORIES["tHq_had0_CP_mix"]  = "tHq_had0"
 CP_CATEGORIES["ttH_had0_CP_even"] = "ttH_had0"
 CP_CATEGORIES["ttH_had0_CP_odd"]  = "ttH_had0"
 
@@ -53,6 +53,14 @@ PRODUCTION_MODE_PROCS["ttH"]     = ["TTH", "tthCPodd"]
 # PRODUCTION_MODE_PROCS["tHq_lep"] = ["tHqLep", "tHqLepCPodd", "tHqLepKt0Ktt0", "tHqLepKtm1Ktt0"]
 
 PRODUCTION_MODE_PROCS["tHq"] = ["tHqHad", "tHqHadCPodd", "tHqLep", "tHqLepCPodd"]#, "tHqHadKt0Ktt0", "tHqHadKtm1Ktt0"]
+
+# bbH/VBFH/VH: minor production modes, not targeted by any category (same
+# treatment as GG2H) - procOriginal strings match the exact case produced by
+# trees2ws.py's dataToProc() and now in Datacard/tools/XSBR.py's
+# tth_th_cp_Analysis map ('BBH', 'VBF', 'vh').
+PRODUCTION_MODE_PROCS["bbH"]  = ["BBH"]
+PRODUCTION_MODE_PROCS["VBFH"] = ["VBF"]
+PRODUCTION_MODE_PROCS["VH"]   = ["vh"]
 # PRODUCTION_MODE_PROCS["tHq_lep"] = ["tHqLep", "tHqLepCPodd"]#, "tHqLepKt0Ktt0", "tHqLepKtm1Ktt0"]
 
 # CP-even/CP-odd benchmark pair for each mode that has one (mode -> (even proc, odd proc))
