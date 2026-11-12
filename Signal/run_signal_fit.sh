@@ -20,11 +20,22 @@ for year in ${years[@]}; do
         --inputConfig config_${year}.py \
         --mode signalFit \
         --modeOpts "--useDCB --doPlots --skipSystematics --replacementThreshold 10 --skipVertexScenarioSplit --nBins 160 "  \
-        --groupSignalFitJobsByCat
+        --groupSignalFitJobsByCat \
+        --printOnly  
+
+    ls outdir_tth_th_cp_Analysis/signalFit/jobs/sub_signalFit_tth_th_cp_Analysis_*.sh \
+        | xargs -P 8 -I{} bash {}
 done
 
 
-cats=("ttH_had0_CP_even" "ttH_had0_CP_odd") # "tHq_had0_CP_even" "tHq_had0_CP_mix")
+cats=("ttH_had0_CP_even" "ttH_had0_CP_odd" "ttH_had0_CP_mix" \
+      "ttH_had1_CP_even" "ttH_had1_CP_odd" "ttH_had1_CP_mix" \
+      "ttH_lep0_CP_even" "ttH_lep0_CP_odd" "ttH_lep0_CP_mix" \
+      "ttH_lep1_CP_even" "ttH_lep1_CP_odd" "ttH_lep1_CP_mix" \
+      "tHq_had0_CP_even" "tHq_had0_CP_odd" "tHq_had0_CP_mix" \
+      "tHq_had1_CP_even" "tHq_had1_CP_odd" "tHq_had1_CP_mix" \
+      "tHq_lep0_CP_even" "tHq_lep0_CP_odd" "tHq_lep0_CP_mix" \
+      "tHq_lep1_CP_even" "tHq_lep1_CP_odd" "tHq_lep1_CP_mix")
 # if you are adding new categories, make sure it is also addded to tools/replacementMap.py and the config file of every year
 
 ##  The packager merges each category's separate per-process, 
@@ -47,13 +58,13 @@ done
 # # then sums both the MC event points and fitted curves across all processes — 
 # # so the plot shows the total expected signal shape for that category/year, not any single process.
 
-# for year in ${years[@]}; do
-#     echo ${year}
-#     # Signal model plots
-#     for cat in "${cats[@]}"; do
-#         python3 RunPlotter.py --procs all --years "${year}" --cats "${cat}" --ext packaged
-#     done
-# done
+for year in ${years[@]}; do
+    echo ${year}
+    # Signal model plots
+    for cat in "${cats[@]}"; do
+        python3 RunPlotter.py --procs all --years "${year}" --cats "${cat}" --ext packaged
+    done
+done
 
 
 # Plotting the packaged signal model for each year,category and process by process

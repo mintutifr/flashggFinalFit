@@ -32,10 +32,30 @@ def leave():
 # Analysis categories (Signal/config_2024.py: cats), tagged with their base group
 # so related categories can be separated visually in the output table.
 CP_CATEGORIES = od()
-# CP_CATEGORIES["tHq_had0_CP_even"] = "tHq_had0"
-# CP_CATEGORIES["tHq_had0_CP_mix"]  = "tHq_had0"
 CP_CATEGORIES["ttH_had0_CP_even"] = "ttH_had0"
 CP_CATEGORIES["ttH_had0_CP_odd"]  = "ttH_had0"
+CP_CATEGORIES["ttH_had0_CP_mix"]  = "ttH_had0"
+CP_CATEGORIES["ttH_had1_CP_even"] = "ttH_had1"
+CP_CATEGORIES["ttH_had1_CP_odd"]  = "ttH_had1"
+CP_CATEGORIES["ttH_had1_CP_mix"]  = "ttH_had1"
+CP_CATEGORIES["ttH_lep0_CP_even"] = "ttH_lep0"
+CP_CATEGORIES["ttH_lep0_CP_odd"]  = "ttH_lep0"
+CP_CATEGORIES["ttH_lep0_CP_mix"]  = "ttH_lep0"
+CP_CATEGORIES["ttH_lep1_CP_even"] = "ttH_lep1"
+CP_CATEGORIES["ttH_lep1_CP_odd"]  = "ttH_lep1"
+CP_CATEGORIES["ttH_lep1_CP_mix"]  = "ttH_lep1"
+CP_CATEGORIES["tHq_had0_CP_even"] = "tHq_had0"
+CP_CATEGORIES["tHq_had0_CP_odd"]  = "tHq_had0"
+CP_CATEGORIES["tHq_had0_CP_mix"]  = "tHq_had0"
+CP_CATEGORIES["tHq_had1_CP_even"] = "tHq_had1"
+CP_CATEGORIES["tHq_had1_CP_odd"]  = "tHq_had1"
+CP_CATEGORIES["tHq_had1_CP_mix"]  = "tHq_had1"
+CP_CATEGORIES["tHq_lep0_CP_even"] = "tHq_lep0"
+CP_CATEGORIES["tHq_lep0_CP_odd"]  = "tHq_lep0"
+CP_CATEGORIES["tHq_lep0_CP_mix"]  = "tHq_lep0"
+CP_CATEGORIES["tHq_lep1_CP_even"] = "tHq_lep1"
+CP_CATEGORIES["tHq_lep1_CP_odd"]  = "tHq_lep1"
+CP_CATEGORIES["tHq_lep1_CP_mix"]  = "tHq_lep1"
 
 # Signal processes produced by the pipeline (Datacard/RunYields.py --procs auto),
 # grouped by production mode. A mode with a CP-odd benchmark sample also has a
@@ -223,11 +243,13 @@ for cat in CP_CATEGORIES:
 
   targetModeYield = modeYields[targetMode] if targetMode is not None else 0.
 
-  # CP-odd fraction within the category's target mode (its own benchmark pair)
+  # CP-odd fraction within the category's target mode (its own benchmark pair).
+  # tHq's pair list has both had and lep CP-odd samples (tHqHadCPodd, tHqLepCPodd) -
+  # summed together rather than split by category tag.
   cpOddYield = 0.
   if targetMode in CP_BENCHMARK_PROCS:
-    _, oddProc = CP_BENCHMARK_PROCS[targetMode]
-    cpOddYield = yieldsDf[sigMask & (yieldsDf['procOriginal']==oddProc)][yieldVar].sum()
+    oddProcs = [p for p in CP_BENCHMARK_PROCS[targetMode] if "CPodd" in p]
+    cpOddYield = yieldsDf[sigMask & yieldsDf['procOriginal'].isin(oddProcs)][yieldVar].sum()
 
   if opt.catInfoPkl != '':
     catInfoMask = catInfoDf['cat']==cat
@@ -262,7 +284,7 @@ tailCols = " & \\multirow{2}{*}{\\begin{tabular}[c]{@{}c@{}}$\\sigma_{\\rm{eff}}
 fout.write("     & \\multirow{2}{*}{Total} & \\multirow{2}{*}{\\begin{tabular}[c]{@{}c@{}}Target\\\\mode\\end{tabular}} & \\multicolumn{%g}{c}{Production Mode Fractions} & \\multirow{2}{*}{\\begin{tabular}[c]{@{}c@{}}CP-odd\\\\(target)\\end{tabular}}%s%s \\\\ \n"%(len(PRODUCTION_MODE_PROCS),bkgHeader,tailCols))
 fout.write("     & & & %s &%s%s \\\\ \\hline \n"%(modeHeader, " &" if not opt.skipBkgCol else "", " &" if opt.catInfoPkl != '' else ""))
 
-# Add rows, separating the tHq_had0 and ttH_had0 blocks with a \cmsTabSkip
+# Add rows, separating the tHq_had0 and ttH_had0 blocks with a \hline
 rows = list(tableDf.iterrows())
 for idx, (ir,r) in enumerate(rows):
   group = CP_CATEGORIES[r['cat']]
@@ -279,7 +301,7 @@ for idx, (ir,r) in enumerate(rows):
   if opt.catInfoPkl != '':
     catLine += " & %.2f & %.2f"%(r['effSigma'],r['SoverSplusB'])
   fout.write("%s \\\\ \n"%catLine)
-  if nextGroup != group: fout.write("     [\\cmsTabSkip]\n")
+  if nextGroup != group: fout.write("     \\hline\n")
 
 fout.write("\\end{tabular}\n")
 fout.close()
