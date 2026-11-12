@@ -8,7 +8,14 @@
 export PYTHONNOUSERSITE=1
 source ../setup.sh
 
-cats=("tHq_had0_CP_even" "tHq_had0_CP_mix" "ttH_had0_CP_even" "ttH_had0_CP_odd")
+cats=("ttH_had0_CP_even" "ttH_had0_CP_odd" "ttH_had0_CP_mix" \
+      "ttH_had1_CP_even" "ttH_had1_CP_odd" "ttH_had1_CP_mix" \
+      "ttH_lep0_CP_even" "ttH_lep0_CP_odd" "ttH_lep0_CP_mix" \
+      "ttH_lep1_CP_even" "ttH_lep1_CP_odd" "ttH_lep1_CP_mix" \
+      "tHq_had0_CP_even" "tHq_had0_CP_odd" "tHq_had0_CP_mix" \
+      "tHq_had1_CP_even" "tHq_had1_CP_odd" "tHq_had1_CP_mix" \
+      "tHq_lep0_CP_even" "tHq_lep0_CP_odd" "tHq_lep0_CP_mix" \
+      "tHq_lep1_CP_even" "tHq_lep1_CP_odd" "tHq_lep1_CP_mix")
 
 for cat in "${cats[@]}"; do
     echo "===== ${cat} ====="
