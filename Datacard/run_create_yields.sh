@@ -19,20 +19,48 @@ source ../setup.sh
 PATH_TO_INPUTS=/eos/home-m/mikumar/Final_fits/outputForFinalFits_29Oct2026/
 
 years=("2022preEE" "2022postEE" "2023preBPix" "2023postBPix" "2024")
-cats=("ttH_had0_CP_even" "ttH_had0_CP_odd") # "tHq_had0_CP_even"  "tHq_had0_CP_mix")
+cats=("ttH_had0_CP_even" "ttH_had0_CP_odd" "ttH_had0_CP_mix" \
+      "ttH_had1_CP_even" "ttH_had1_CP_odd" "ttH_had1_CP_mix" \
+      "ttH_lep0_CP_even" "ttH_lep0_CP_odd" "ttH_lep0_CP_mix" \
+      "ttH_lep1_CP_even" "ttH_lep1_CP_odd" "ttH_lep1_CP_mix" \
+      "tHq_had0_CP_even" "tHq_had0_CP_odd" "tHq_had0_CP_mix" \
+      "tHq_had1_CP_even" "tHq_had1_CP_odd" "tHq_had1_CP_mix" \
+      "tHq_lep0_CP_even" "tHq_lep0_CP_odd" "tHq_lep0_CP_mix" \
+      "tHq_lep1_CP_even" "tHq_lep1_CP_odd" "tHq_lep1_CP_mix")
 
-for year in "${years[@]}"; do
-    echo "${year}"
-    for cat in "${cats[@]}"; do
-        echo "${cat}"
-        python3 RunYields.py \
-        --inputWSDirMap  "2022preEE=${PATH_TO_INPUTS}/workspaces/2022preEE/,2022postEE=${PATH_TO_INPUTS}/workspaces/2022postEE/,2023preBPix=${PATH_TO_INPUTS}/workspaces/2023preBPix/,2023postBPix=${PATH_TO_INPUTS}/workspaces/2023postBPix/,2024=${PATH_TO_INPUTS}/workspaces/2024/" \
-            --cats ${cat} \
-            --procs 'GG2H,TTH,tHqHad,tHqHadCPodd,tHqLep,tHqLepCPodd,tthCPodd,BBH,VBF,vh' \
-            --ext tth_th_cp_Analysis \
-            --mergeYears \
-            --skipCOWCorr \
-            --batch local
-    done
-done
+###########
+# single core
+###########
+
+
+# for cat in "${cats[@]}"; do
+#     echo "${cat}"
+#     python3 RunYields.py \
+#     --inputWSDirMap  "2022preEE=${PATH_TO_INPUTS}/workspaces/2022preEE/,2022postEE=${PATH_TO_INPUTS}/workspaces/2022postEE/,2023preBPix=${PATH_TO_INPUTS}/workspaces/2023preBPix/,2023postBPix=${PATH_TO_INPUTS}/workspaces/2023postBPix/,2024=${PATH_TO_INPUTS}/workspaces/2024/" \
+#         --cats ${cat} \
+#         --procs 'GG2H,TTH,tHqHad,tHqHadCPodd,tHqLep,tHqLepCPodd,tthCPodd,tHqHadKt0Ktt0,tHqHadKtm1Ktt0, tHqLepKt0Ktt0,tHqlepKtm1Ktt0,BBH,VBF,vh,' \
+#         --ext tth_th_cp_Analysis \
+#         --mergeYears \
+#         --skipCOWCorr \
+#         --batch local
+# done
+
+###########
+# Multi core
+###########
+
+cats_joined=$(IFS=,; echo "${cats[*]}")
+
+python3 RunYields.py \
+    --inputWSDirMap  "2022preEE=${PATH_TO_INPUTS}/workspaces/2022preEE/,2022postEE=${PATH_TO_INPUTS}/workspaces/2022postEE/,2023preBPix=${PATH_TO_INPUTS}/workspaces/2023preBPix/,2023postBPix=${PATH_TO_INPUTS}/workspaces/2023postBPix/,2024=${PATH_TO_INPUTS}/workspaces/2024/" \
+    --cats "${cats_joined}" \
+    --procs 'GG2H,TTH,tHqHad,tHqHadCPodd,tHqLep,tHqLepCPodd,tthCPodd,tHqHadKt0Ktt0,tHqHadKtm1Ktt0,tHqLepKt0Ktt0,tHqLepKtm1Ktt0,BBH,VBF,vh' \
+    --ext tth_th_cp_Analysis \
+    --mergeYears \
+    --skipCOWCorr \
+    --batch local \
+    --printOnly
+
+ls yields_tth_th_cp_Analysis/jobs/sub_yields_tth_th_cp_Analysis_*.sh \
+    | xargs -P 8 -I{} bash {}
 
