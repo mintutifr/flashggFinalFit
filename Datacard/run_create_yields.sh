@@ -16,7 +16,7 @@ fi
 export PYTHONNOUSERSITE=1
 source ../setup.sh
 
-PATH_TO_INPUTS=/eos/home-m/mikumar/Final_fits/outputForFinalFits_29Oct2026/
+PATH_TO_INPUTS=/eos/home-m/mikumar/Final_fits/outputForFinalFits_18Nov2026/
 
 years=("2022preEE" "2022postEE" "2023preBPix" "2023postBPix" "2024")
 cats=("ttH_had0_CP_even" "ttH_had0_CP_odd" "ttH_had0_CP_mix" \

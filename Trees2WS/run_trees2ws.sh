@@ -18,7 +18,7 @@ elif [[ "$1" == "--data" ]]; then
     # Run Data command
     python3 trees2ws_data.py \
       --inputConfig config_tutorial.py \
-      --inputTreeFile /eos/user/m/mikumar/Final_fits/outputForFinalFits_29Oct2026/root/Data/allData.root \
+      --inputTreeFile /eos/user/m/mikumar/Final_fits/outputForFinalFits_18Nov2026/root/Data/allData.root \
       --applyMassCut --massCutRange 100,180
 else
     years=("2022preEE" "2022postEE" "2023preBPix" "2023postBPix" "2024")
@@ -34,7 +34,7 @@ else
         outputfile=$(python3 -c "import yaml; print(yaml.safe_load(open('$yaml_file'))['$sample_key'])")
         echo ${outputfile}
         for year in "${years[@]}"; do
-            inputTreeFile="/eos/user/m/mikumar/Final_fits/outputForFinalFits_29Oct2026/root/${sample}_${year}/${outputfile}"
+            inputTreeFile="/eos/user/m/mikumar/Final_fits/outputForFinalFits_18Nov2026/root/${sample}_${year}/${outputfile}"
             if [[ ! -f "${inputTreeFile}" ]]; then
                 echo "  [SKIP] Missing: ${inputTreeFile}"
                 continue

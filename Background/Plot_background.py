@@ -15,7 +15,7 @@ ROOT.gStyle.SetOptStat(0)
 ROOT.gStyle.SetPadTickX(1)
 ROOT.gStyle.SetPadTickY(1)
 
-DEFAULT_INPUT = "/eos/home-m/mikumar/Final_fits/outputForFinalFits_29Oct2026/root/Data/ws/allData.root"
+DEFAULT_INPUT = "/eos/home-m/mikumar/Final_fits/outputForFinalFits_18Nov2026/root/Data/ws/allData.root"
 DEFAULT_CATS = "ttH_had0_CP_even,ttH_had0_CP_odd"
 COLORS = [ROOT.kBlack, ROOT.kRed+1, ROOT.kAzure+2, ROOT.kGreen+2, ROOT.kOrange+1, ROOT.kMagenta+1, ROOT.kCyan+2, ROOT.kGray+2]
 

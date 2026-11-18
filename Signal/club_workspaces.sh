@@ -1,10 +1,10 @@
 #!/bin/bash
 
 # Base input directory
-INPUT_BASE="/eos/user/m/mikumar/Final_fits/outputForFinalFits_29Oct2026/root"
+INPUT_BASE="/eos/user/m/mikumar/Final_fits/outputForFinalFits_18Nov2026/root"
 
 # Base output directory
-OUTPUT_BASE="/eos/user/m/mikumar/Final_fits/outputForFinalFits_29Oct2026/workspaces"
+OUTPUT_BASE="/eos/user/m/mikumar/Final_fits/outputForFinalFits_18Nov2026/workspaces"
 
 # Sample list
 samples=(
