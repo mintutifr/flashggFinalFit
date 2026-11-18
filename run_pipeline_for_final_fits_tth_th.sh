@@ -21,7 +21,7 @@ declare -A STEP_DESC
 # full-pipeline run - invoke it explicitly with --steps 0. It deletes all
 # generated output from steps 1-14 (see reset.sh), so it's handled as a
 # special case below rather than living in STEP_ORDER with the rest.
-STEP_DESC[reset]="Reset - ./reset.sh (delete all pipeline-generated output from steps 1-14; keeps raw ntuples and the step-12 eos copy)"
+STEP_DESC[reset]="Reset - ./reset.sh (delete all pipeline-generated output from steps 4-14; keeps steps 1-3's output, raw ntuples, and the step-12 eos copy)"
 step_reset() {
     pushd "${SCRIPT_DIR}" > /dev/null
     ./reset.sh
