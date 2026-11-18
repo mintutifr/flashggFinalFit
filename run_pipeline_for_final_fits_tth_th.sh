@@ -17,6 +17,17 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 declare -A STEP_DESC
 
+# "reset" is Step 0: opt-in only, never part of the default (no --steps)
+# full-pipeline run - invoke it explicitly with --steps 0. It deletes all
+# generated output from steps 1-14 (see reset.sh), so it's handled as a
+# special case below rather than living in STEP_ORDER with the rest.
+STEP_DESC[reset]="Reset - ./reset.sh (delete all pipeline-generated output from steps 1-14; keeps raw ntuples and the step-12 eos copy)"
+step_reset() {
+    pushd "${SCRIPT_DIR}" > /dev/null
+    ./reset.sh
+    popd > /dev/null
+}
+
 STEP_DESC[trees2ws_mc]="Trees2WS MC - ./Trees2WS/run_trees2ws.sh (convert HiggsDNA  MC trees to RooWorkspaces)"
 step_trees2ws_mc() {
     pushd "${SCRIPT_DIR}/Trees2WS" > /dev/null
@@ -166,13 +177,14 @@ while [[ $# -gt 0 ]]; do
             echo "Usage: $0 [--steps LIST] [-h|--help]"
             echo
             echo "Runs the ttH/tH CP analysis final-fits pipeline, step by step:"
+            echo "  Step 0: ${STEP_DESC[reset]} (opt-in only - not run by default, use --steps 0)"
             for i in "${!STEP_ORDER[@]}"; do
                 n=$((i + 1))
                 key="${STEP_ORDER[$i]}"
                 echo "  Step ${n}: ${STEP_DESC[$key]}"
             done
             echo
-            echo "  --steps LIST   Only run the given steps, e.g. '1', '1-3', '1,3', '1,3-5' (default: all)"
+            echo "  --steps LIST   Only run the given steps, e.g. '1', '1-3', '1,3', '1,3-5' (default: all of steps 1-${#STEP_ORDER[@]}; step 0 is never included by default)"
             echo "  -h, --help     Print the pipeline steps above and exit without running anything"
             exit 0
             ;;
@@ -196,6 +208,7 @@ else
 fi
 
 for n in "${STEPS_TO_RUN[@]}"; do
+    if [[ "${n}" == "0" ]]; then continue; fi
     if [[ -z "${STEP_ORDER[$((n - 1))]:-}" ]]; then
         echo "[ERROR] No such step: ${n}" >&2
         exit 1
@@ -208,6 +221,11 @@ export PYTHONNOUSERSITE=1
 source "${SCRIPT_DIR}/setup.sh"
 
 for n in "${STEPS_TO_RUN[@]}"; do
+    if [[ "${n}" == "0" ]]; then
+        echo "===== STEP 0: ${STEP_DESC[reset]} ====="
+        step_reset
+        continue
+    fi
     key="${STEP_ORDER[$((n - 1))]}"
     echo "===== STEP ${n}: ${STEP_DESC[$key]} ====="
     "step_${key}"
