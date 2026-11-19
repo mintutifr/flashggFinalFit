@@ -26,7 +26,12 @@ else
     production_mode=("tth" "tthCPodd" "tHqHad" "tHqHadCPodd" "tHqLep" "tHqLepCPodd" "ggh" "tHqHadKt0Ktt0" "tHqHadKtm1Ktt0" "tHqLepKt0Ktt0" "tHqLepKtm1Ktt0" "bbh" "vbf" "vh")
     yaml_file="outputfiles.yaml"
 
-    # Run MC command
+    # Build the list of trees2ws.py calls first (the skip-check and YAML
+    # lookup are cheap, so keep those sequential), then run them in
+    # parallel sample-year, fully independent.
+    CMDS_FILE=$(mktemp)
+    trap 'rm -f "${CMDS_FILE}"' EXIT
+
     for i in "${!samples[@]}"; do
         sample="${samples[$i]}"
         prod_mode="${production_mode[$i]}"
@@ -39,13 +44,11 @@ else
                 echo "  [SKIP] Missing: ${inputTreeFile}"
                 continue
             fi
-            python3 trees2ws.py \
-              --inputConfig config_tutorial.py \
-              --inputTreeFile "${inputTreeFile}" \
-              --inputMass 125 \
-              --productionMode ${prod_mode} \
-              --year ${year} \
-              #--doSystematics
+            echo "python3 trees2ws.py --inputConfig config_tutorial.py --inputTreeFile '${inputTreeFile}' --inputMass 125 --productionMode ${prod_mode} --year ${year}" >> "${CMDS_FILE}"
         done
     done
+
+    echo
+    echo "Running $(wc -l < "${CMDS_FILE}") trees2ws.py conversions (up to 8 in parallel)..."
+    xargs -P 8 -I{} bash -c '{}' < "${CMDS_FILE}"
 fi
