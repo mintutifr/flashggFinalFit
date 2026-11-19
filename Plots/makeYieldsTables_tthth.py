@@ -294,7 +294,7 @@ for idx, (ir,r) in enumerate(rows):
   catLine = "     %s & %.4f & %.1f\\%%"%(Translate(r['cat'],catLabels),r['nominal_yield'],targetPct)
   for mode in PRODUCTION_MODE_PROCS:
     modePct = 100*(r['%s_yield'%mode]/r['nominal_yield']) if r['nominal_yield'] else 0.
-    catLine += " & -" if modePct <= 0. else " & %.1f\\%%"%modePct
+    catLine += " & $<$ 0.05\%" if modePct <= 0.05  else " & %.1f\\%%"%modePct
   catLine += " & %.1f\\%%"%(100*(r['cp_odd_yield']/r['target_mode_yield'])) if r['target_mode_yield'] else " & -"
   if not opt.skipBkgCol:
     catLine += " & -" if r['bkg_yield'] is None else " & %.2f"%r['bkg_yield']
