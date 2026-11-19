@@ -216,19 +216,30 @@ for n in "${STEPS_TO_RUN[@]}"; do
 done
 
 set -e
+set -o pipefail
 
 export PYTHONNOUSERSITE=1
 source "${SCRIPT_DIR}/setup.sh"
 
+# Each step's terminal output is saved to its own file here, in addition to
+# being shown live (via tee), so a step's log can be inspected without
+# re-running it or digging through one giant combined log.
+LOG_DIR="${SCRIPT_DIR}/logs"
+mkdir -p "${LOG_DIR}"
+
 for n in "${STEPS_TO_RUN[@]}"; do
     if [[ "${n}" == "0" ]]; then
+        logfile="${LOG_DIR}/step_0_reset.txt"
         echo "===== STEP 0: ${STEP_DESC[reset]} ====="
-        step_reset
+        echo "  (log: ${logfile})"
+        step_reset 2>&1 | tee "${logfile}"
         continue
     fi
     key="${STEP_ORDER[$((n - 1))]}"
+    logfile="${LOG_DIR}/step_${n}_${key}.txt"
     echo "===== STEP ${n}: ${STEP_DESC[$key]} ====="
-    "step_${key}"
+    echo "  (log: ${logfile})"
+    "step_${key}" 2>&1 | tee "${logfile}"
 done
 
 echo "===== PIPELINE COMPLETE ====="
