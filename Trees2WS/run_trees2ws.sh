@@ -22,8 +22,8 @@ elif [[ "$1" == "--data" ]]; then
       --applyMassCut --massCutRange 100,180
 else
     years=("2022preEE" "2022postEE" "2023preBPix" "2023postBPix" "2024")
-    samples=("ttH" "ttH_CPodd" "tHqHad" "tHqHad_CPodd" "tHqLep" "tHqLep_CPodd" "GluGluH" "tHqHad_Kt0Ktt0" "tHqHad_Ktm1Ktt0" "tHqLep_Kt0Ktt0" "tHqLep_Ktm1Ktt0" "bbH" "VBFH" "VH")
-    production_mode=("tth" "tthCPodd" "tHqHad" "tHqHadCPodd" "tHqLep" "tHqLepCPodd" "ggh" "tHqHadKt0Ktt0" "tHqHadKtm1Ktt0" "tHqLepKt0Ktt0" "tHqLepKtm1Ktt0" "bbh" "vbf" "vh")
+    samples=("ttH" "ttH_CPodd" "tHqHad" "tHqHad_CPodd" "tHqLep" "tHqLep_CPodd" "GluGluH" "tHqHad_Kt0Ktt0" "tHqHad_Ktm1Ktt0" "tHqLep_Kt0Ktt0" "tHqLep_Ktm1Ktt0" "bbH" "VBFH" "VH" "tHW")
+    production_mode=("tth" "tthCPodd" "tHqHad" "tHqHadCPodd" "tHqLep" "tHqLepCPodd" "ggh" "tHqHadKt0Ktt0" "tHqHadKtm1Ktt0" "tHqLepKt0Ktt0" "tHqLepKtm1Ktt0" "bbh" "vbf" "vh" "tHW")
     yaml_file="outputfiles.yaml"
 
     # Build the list of trees2ws.py calls first (the skip-check and YAML

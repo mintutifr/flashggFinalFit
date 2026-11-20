@@ -54,7 +54,7 @@ cats_joined=$(IFS=,; echo "${cats[*]}")
 python3 RunYields.py \
     --inputWSDirMap  "2022preEE=${PATH_TO_INPUTS}/workspaces/2022preEE/,2022postEE=${PATH_TO_INPUTS}/workspaces/2022postEE/,2023preBPix=${PATH_TO_INPUTS}/workspaces/2023preBPix/,2023postBPix=${PATH_TO_INPUTS}/workspaces/2023postBPix/,2024=${PATH_TO_INPUTS}/workspaces/2024/" \
     --cats "${cats_joined}" \
-    --procs 'GG2H,TTH,tHqHad,tHqHadCPodd,tHqLep,tHqLepCPodd,tthCPodd,tHqHadKt0Ktt0,tHqHadKtm1Ktt0,tHqLepKt0Ktt0,tHqLepKtm1Ktt0,BBH,VBF,vh' \
+    --procs 'GG2H,TTH,tHqHad,tHqHadCPodd,tHqLep,tHqLepCPodd,tthCPodd,tHqHadKt0Ktt0,tHqHadKtm1Ktt0,tHqLepKt0Ktt0,tHqLepKtm1Ktt0,BBH,VBF,vh,tHW' \
     --ext tth_th_cp_Analysis \
     --mergeYears \
     --skipCOWCorr \
