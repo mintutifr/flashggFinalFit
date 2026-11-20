@@ -29,6 +29,39 @@ def leave():
   print(" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ttH/tH CP YIELDS TABLE (END) ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ")
   exit(0)
 
+# Options are parsed here (moved up from further below) because
+# PRODUCTION_MODE_PROCS, right after this, needs opt.cp to decide the
+# even/odd split before anything else in the file runs.
+def get_options():
+  parser = OptionParser()
+  parser.add_option("--yieldsDir", dest="yieldsDir", default="../Datacard/yields_tth_th_cp_Analysis", help="Directory of per-category yield pkl files (from Datacard/RunYields.py)")
+  parser.add_option("--combinedYieldsPkl", dest="combinedYieldsPkl", default='', help="Single combined yields pickle, e.g. Datacard_tth_th_cp_Analysis.pkl (overrides --yieldsDir)")
+  parser.add_option("--catInfoPkl", dest="catInfoPkl", default='', help="Load eff sigma, bkg and S/S+B from pickle file (see Plots/getCatInfo.py --saveCatInfo)")
+  parser.add_option("--ext", dest="ext", default='', help="Extension for saving, e.g. _tth_th_cp_Analysis")
+  parser.add_option("--yieldVar", dest="yieldVar", default='nominal_yield', help="Name of yield column in dataframe")
+  # nominal_yield is eff*acc only (no XS*BR, no lumi - see Datacard/makeDatacard.py:102
+  # "In HiggsDNA the sumw = eff*acc"). The only place XS*BR*rate actually gets computed
+  # in this codebase is makeDatacard.py's --prune block (true_yield = xsbr*ea*rate,
+  # Datacard/makeDatacard.py:102-117), and that result is only ever used internally for
+  # the pruning decision - never written to any table. --trueYield reproduces that same
+  # formula here so it can be, staying as close to makeDatacard.py's own code as possible.
+  parser.add_option("--trueYield", dest="trueYield", default=False, action="store_true", help="Scale nominal_yield by XS*BR (Datacard/tools/XSBR.py) and by the per-row 'rate' column (lumi, pb^-1) before summing, i.e. use makeDatacard.py's --prune 'true_yield' formula instead of the raw eff*acc nominal_yield. Output goes to a separate *_trueYield.txt file.")
+  parser.add_option("--mass", dest="mass", default='125', help="MH mass, used to look up XS*BR when --trueYield is set")
+  parser.add_option("--analysis", dest="analysis", default='tth_th_cp_Analysis', help="Analysis name in Datacard/tools/XSBR.py's XSBRMap, used to look up XS*BR when --trueYield is set")
+  parser.add_option("--catLabels", dest="catLabels", default=None, help="JSON mapping category name -> display label (optional, e.g. your own cats_latex.json)")
+  parser.add_option("--modeLabels", dest="modeLabels", default=None, help="JSON mapping production-mode name (ggH/ttH/tHq_had/tHq_lep) -> display label (optional)")
+  parser.add_option("--skipBkgCol", dest="skipBkgCol", default=False, action="store_true", help="Don't add the Background column (skips reading the Background/ fit workspaces entirely)")
+  parser.add_option("--bkgWSDir", dest="bkgWSDir", default="../Background/outdir_tth_th_cp_Analysis", help="Directory of fitted background workspaces (CMS-HGG_multipdf_<cat>.root), from Background/run_Background_fit.sh - used for the Background column (see getBkgYields_tthth.py)")
+  parser.add_option("--bkgWSName", dest="bkgWSName", default="multipdf", help="Name of the RooWorkspace object inside each background fit file")
+  parser.add_option("--blindWindow", dest="blindWindow", default="115,135", help="Signal mass window excluded from the Background column by default: low,high. Pass '' to disable")
+  parser.add_option("--unblindBkg", dest="unblindBkg", default=False, action="store_true", help="Background column counts every data event, including the blind window (default: blind window excluded)")
+  parser.add_option("--expected_bkg", dest="expected_bkg", default=False, action="store_true", help="Add an Expected Bkg column: the best-fit background shape's density x normalization at --bkgMass (see Plots/expected_bkg_yield.py), alongside the observed-data Background column")
+  parser.add_option("--bkgMass", dest="bkgMass", default=125.09, type="float", help="Mass point [GeV] the Expected Bkg column is evaluated at when --expected_bkg is set (default: 125.09)")
+  parser.add_option("--cp", dest="cp", default='', help="conside even/odd as Taget_mode")
+  parser.add_option("--absYield", dest="absYield", default=False, action="store_true", help="Show each production mode's absolute yield number instead of its percentage contribution to the category total")
+  return parser.parse_args()
+(opt,args) = get_options()
+
 # Analysis categories (Signal/config_2024.py: cats), tagged with their base group
 # so related categories can be separated visually in the output table.
 CP_CATEGORIES = od()
@@ -64,15 +97,26 @@ CP_CATEGORIES["tHq_lep1_CP_mix"]  = "tHq_lep1"
 # fraction it's useful to see the CP-odd/CP-even split within that mode too.
 PRODUCTION_MODE_PROCS = od()
 PRODUCTION_MODE_PROCS["GG2H"]     = ["GG2H"]
-PRODUCTION_MODE_PROCS["ttH"]     = ["TTH", "tthCPodd"]
+#PRODUCTION_MODE_PROCS["THW"]     = ["THW"]
+if(opt.cp == 'even'):
+  PRODUCTION_MODE_PROCS["ttH"]     = ["TTH"]
+elif(opt.cp == 'odd'):
+  PRODUCTION_MODE_PROCS["ttH"]     = ["tthCPodd"]
+else:
+  PRODUCTION_MODE_PROCS["ttH"]     = ["TTH", "tthCPodd"]
 # tHqHadKt0Ktt0/tHqHadKtm1Ktt0 (and the lep equivalents) are additional tHq
 # anomalous-coupling (kt/ktt) benchmark samples from the same procs list as the
 # CP-odd ones (Signal/run_signal_fit.sh) - group them with their production mode.
 
 # PRODUCTION_MODE_PROCS["tHq_had"] = ["tHqHad", "tHqHadCPodd", "tHqHadKt0Ktt0", "tHqHadKtm1Ktt0"]
 # PRODUCTION_MODE_PROCS["tHq_lep"] = ["tHqLep", "tHqLepCPodd", "tHqLepKt0Ktt0", "tHqLepKtm1Ktt0"]
-
-PRODUCTION_MODE_PROCS["tHq"] = ["tHqHad", "tHqHadCPodd", "tHqLep", "tHqLepCPodd"]#, "tHqHadKt0Ktt0", "tHqHadKtm1Ktt0"]
+if(opt.cp == 'even'):
+  PRODUCTION_MODE_PROCS["tHq"] = ["tHqHad", "tHqLep"]
+elif(opt.cp == 'odd'):
+  PRODUCTION_MODE_PROCS["tHq"] = ["tHqHadCPodd", "tHqLepCPodd"]
+else:
+  PRODUCTION_MODE_PROCS["tHq"] = ["tHqHad", "tHqLep" "tHqHadCPodd", "tHqLepCPodd"]
+# PRODUCTION_MODE_PROCS["tHq"] = ["tHqHad", "tHqHadCPodd", "tHqLep", "tHqLepCPodd"]#, "tHqHadKt0Ktt0", "tHqHadKtm1Ktt0"]
 
 # bbH/VBFH/VH: minor production modes, not targeted by any category (same
 # treatment as GG2H) - procOriginal strings match the exact case produced by
@@ -84,9 +128,9 @@ PRODUCTION_MODE_PROCS["VH"]   = ["vh"]
 # PRODUCTION_MODE_PROCS["tHq_lep"] = ["tHqLep", "tHqLepCPodd"]#, "tHqLepKt0Ktt0", "tHqLepKtm1Ktt0"]
 
 # CP-even/CP-odd benchmark pair for each mode that has one (mode -> (even proc, odd proc))
-CP_BENCHMARK_PROCS = od()
-CP_BENCHMARK_PROCS["ttH"]     = ("TTH", "tthCPodd")
-CP_BENCHMARK_PROCS["tHq"] = ("tHqHad", "tHqHadCPodd","tHqLep", "tHqLepCPodd")
+# CP_BENCHMARK_PROCS = od()
+# CP_BENCHMARK_PROCS["ttH"]     = ("TTH", "tthCPodd")
+# CP_BENCHMARK_PROCS["tHq"] = ("tHqHad", "tHqHadCPodd","tHqLep", "tHqLepCPodd")
 # CP_BENCHMARK_PROCS["tHq_lep"] = ("tHqLep", "tHqLepCPodd")
 
 # Production mode each category is designed to select (drives the "target purity" column)
@@ -96,34 +140,6 @@ for _cat in CP_CATEGORIES:
   elif "tHq_" in _cat: CATEGORY_TARGET_MODE[_cat] = "tHq"
   # elif "tHq_had" in _cat: CATEGORY_TARGET_MODE[_cat] = "tHq_had"
   else: CATEGORY_TARGET_MODE[_cat] = None
-
-def get_options():
-  parser = OptionParser()
-  parser.add_option("--yieldsDir", dest="yieldsDir", default="../Datacard/yields_tth_th_cp_Analysis", help="Directory of per-category yield pkl files (from Datacard/RunYields.py)")
-  parser.add_option("--combinedYieldsPkl", dest="combinedYieldsPkl", default='', help="Single combined yields pickle, e.g. Datacard_tth_th_cp_Analysis.pkl (overrides --yieldsDir)")
-  parser.add_option("--catInfoPkl", dest="catInfoPkl", default='', help="Load eff sigma, bkg and S/S+B from pickle file (see Plots/getCatInfo.py --saveCatInfo)")
-  parser.add_option("--ext", dest="ext", default='', help="Extension for saving, e.g. _tth_th_cp_Analysis")
-  parser.add_option("--yieldVar", dest="yieldVar", default='nominal_yield', help="Name of yield column in dataframe")
-  # nominal_yield is eff*acc only (no XS*BR, no lumi - see Datacard/makeDatacard.py:102
-  # "In HiggsDNA the sumw = eff*acc"). The only place XS*BR*rate actually gets computed
-  # in this codebase is makeDatacard.py's --prune block (true_yield = xsbr*ea*rate,
-  # Datacard/makeDatacard.py:102-117), and that result is only ever used internally for
-  # the pruning decision - never written to any table. --trueYield reproduces that same
-  # formula here so it can be, staying as close to makeDatacard.py's own code as possible.
-  parser.add_option("--trueYield", dest="trueYield", default=False, action="store_true", help="Scale nominal_yield by XS*BR (Datacard/tools/XSBR.py) and by the per-row 'rate' column (lumi, pb^-1) before summing, i.e. use makeDatacard.py's --prune 'true_yield' formula instead of the raw eff*acc nominal_yield. Output goes to a separate *_trueYield.txt file.")
-  parser.add_option("--mass", dest="mass", default='125', help="MH mass, used to look up XS*BR when --trueYield is set")
-  parser.add_option("--analysis", dest="analysis", default='tth_th_cp_Analysis', help="Analysis name in Datacard/tools/XSBR.py's XSBRMap, used to look up XS*BR when --trueYield is set")
-  parser.add_option("--catLabels", dest="catLabels", default=None, help="JSON mapping category name -> display label (optional, e.g. your own cats_latex.json)")
-  parser.add_option("--modeLabels", dest="modeLabels", default=None, help="JSON mapping production-mode name (ggH/ttH/tHq_had/tHq_lep) -> display label (optional)")
-  parser.add_option("--skipBkgCol", dest="skipBkgCol", default=False, action="store_true", help="Don't add the Background column (skips reading the Background/ fit workspaces entirely)")
-  parser.add_option("--bkgWSDir", dest="bkgWSDir", default="../Background/outdir_tth_th_cp_Analysis", help="Directory of fitted background workspaces (CMS-HGG_multipdf_<cat>.root), from Background/run_Background_fit.sh - used for the Background column (see getBkgYields_tthth.py)")
-  parser.add_option("--bkgWSName", dest="bkgWSName", default="multipdf", help="Name of the RooWorkspace object inside each background fit file")
-  parser.add_option("--blindWindow", dest="blindWindow", default="115,135", help="Signal mass window excluded from the Background column by default: low,high. Pass '' to disable")
-  parser.add_option("--unblindBkg", dest="unblindBkg", default=False, action="store_true", help="Background column counts every data event, including the blind window (default: blind window excluded)")
-  parser.add_option("--expected_bkg", dest="expected_bkg", default=False, action="store_true", help="Add an Expected Bkg column: the best-fit background shape's density x normalization at --bkgMass (see Plots/expected_bkg_yield.py), alongside the observed-data Background column")
-  parser.add_option("--bkgMass", dest="bkgMass", default=125.09, type="float", help="Mass point [GeV] the Expected Bkg column is evaluated at when --expected_bkg is set (default: 125.09)")
-  return parser.parse_args()
-(opt,args) = get_options()
 
 def EscapeLatex(s):
   # Raw category/mode names (e.g. "tHq_had0_CP_even", "tHq_had") contain "_",
@@ -211,7 +227,7 @@ if not opt.skipBkgCol:
 # Initiate pandas dataframe
 _columns = ['cat', 'nominal_yield', 'target_mode', 'target_mode_yield']
 for mode in PRODUCTION_MODE_PROCS: _columns.append("%s_yield"%mode)
-_columns.append('cp_odd_yield')
+# _columns.append('cp_odd_yield')  # CP-odd(target) column disabled
 if not opt.skipBkgCol: _columns.append('bkg_yield')
 if opt.catInfoPkl != '': _columns.extend(['effSigma', 'bkg', 'SoverSplusB'])
 tableDf = pd.DataFrame(columns=_columns)
@@ -246,10 +262,11 @@ for cat in CP_CATEGORIES:
   # CP-odd fraction within the category's target mode (its own benchmark pair).
   # tHq's pair list has both had and lep CP-odd samples (tHqHadCPodd, tHqLepCPodd) -
   # summed together rather than split by category tag.
-  cpOddYield = 0.
-  if targetMode in CP_BENCHMARK_PROCS:
-    oddProcs = [p for p in CP_BENCHMARK_PROCS[targetMode] if "CPodd" in p]
-    cpOddYield = yieldsDf[sigMask & yieldsDf['procOriginal'].isin(oddProcs)][yieldVar].sum()
+  # CP-odd(target) column disabled:
+  # cpOddYield = 0.
+  # if targetMode in CP_BENCHMARK_PROCS:
+  #   oddProcs = [p for p in CP_BENCHMARK_PROCS[targetMode] if "CPodd" in p]
+  #   cpOddYield = yieldsDf[sigMask & yieldsDf['procOriginal'].isin(oddProcs)][yieldVar].sum()
 
   if opt.catInfoPkl != '':
     catInfoMask = catInfoDf['cat']==cat
@@ -260,7 +277,7 @@ for cat in CP_CATEGORIES:
   # Add values to dataframe
   vals = [cat, catYield, targetMode, targetModeYield]
   for mode in PRODUCTION_MODE_PROCS: vals.append(modeYields[mode])
-  vals.append(cpOddYield)
+  # vals.append(cpOddYield)  # CP-odd(target) column disabled
   if not opt.skipBkgCol: vals.append(bkgYields[cat])
   if opt.catInfoPkl != '': vals.extend([effSigma,bkgPerGeV,sOverSplusB])
   tableDf.loc[len(tableDf)] = vals
@@ -269,19 +286,23 @@ if len(tableDf) == 0:
   print(" --> [ERROR] No categories with signal yields found. Leaving")
   leave()
 
-# Make table: cat, total, target-mode purity, [mode fraction]*, CP-odd(target), [Background], [effSigma, S/S+B]
+# Make table: cat, total, target-mode purity, [mode fraction]*, [Background], [effSigma, S/S+B]
+# (CP-odd(target) column disabled - base count dropped from 4 to 3)
 os.makedirs("Tables", exist_ok=True)
-nColumns = 4 + len(PRODUCTION_MODE_PROCS)
+nColumns = 3 + len(PRODUCTION_MODE_PROCS)
 if not opt.skipBkgCol: nColumns += 1
 if opt.catInfoPkl != '': nColumns += 2
 outSuffix = "_trueYield" if opt.trueYield else ""
+outSuffix += "_%s"%opt.cp  # keep --cp even/odd runs in separate files instead of overwriting each other
+if opt.absYield: outSuffix += "_absYield"
 fout = open("Tables/yields_table_lite_tthth%s%s.txt"%(opt.ext,outSuffix),"w")
 fout.write("\\begin{tabular}{%s}\n"%("l|"+("c"*(nColumns-1))))
 fout.write("    \\multirow{3}{*}{Analysis categories} & \\multicolumn{%g}{c}{ttH+tH CP analysis expected signal} \\\\ \n"%(nColumns-1))
 modeHeader = " & ".join(Translate(mode,modeLabels) for mode in PRODUCTION_MODE_PROCS)
 bkgHeader = " & \\multirow{2}{*}{\\begin{tabular}[c]{@{}c@{}}BKG\\\\(GeV$^{-1})$\\end{tabular}}" if not opt.skipBkgCol else ""
 tailCols = " & \\multirow{2}{*}{\\begin{tabular}[c]{@{}c@{}}$\\sigma_{\\rm{eff}}$\\\\(GeV)\\end{tabular}} & \\multirow{2}{*}{S/(S+B)}" if opt.catInfoPkl != '' else ""
-fout.write("     & \\multirow{2}{*}{Total} & \\multirow{2}{*}{\\begin{tabular}[c]{@{}c@{}}Target\\\\mode\\end{tabular}} & \\multicolumn{%g}{c}{Production Mode Fractions} & \\multirow{2}{*}{\\begin{tabular}[c]{@{}c@{}}CP-odd\\\\(target)\\end{tabular}}%s%s \\\\ \n"%(len(PRODUCTION_MODE_PROCS),bkgHeader,tailCols))
+# CP-odd(target) multirow header disabled - was here: & \multirow{2}{*}{...CP-odd\\(target)...}
+fout.write("     & \\multirow{2}{*}{Total} & \\multirow{2}{*}{\\begin{tabular}[c]{@{}c@{}}Target\\\\mode\\end{tabular}} & \\multicolumn{%g}{c}{Production Mode Fractions}%s%s \\\\ \n"%(len(PRODUCTION_MODE_PROCS),bkgHeader,tailCols))
 fout.write("     & & & %s &%s%s \\\\ \\hline \n"%(modeHeader, " &" if not opt.skipBkgCol else "", " &" if opt.catInfoPkl != '' else ""))
 
 # Add rows, separating the tHq_had0 and ttH_had0 blocks with a \hline
@@ -293,9 +314,12 @@ for idx, (ir,r) in enumerate(rows):
   targetPct = 100*(r['target_mode_yield']/r['nominal_yield']) if r['nominal_yield'] else 0.
   catLine = "     %s & %.4f & %.1f\\%%"%(Translate(r['cat'],catLabels),r['nominal_yield'],targetPct)
   for mode in PRODUCTION_MODE_PROCS:
-    modePct = 100*(r['%s_yield'%mode]/r['nominal_yield']) if r['nominal_yield'] else 0.
-    catLine += " & $<$ 0.05\%" if modePct <= 0.05  else " & %.1f\\%%"%modePct
-  catLine += " & %.1f\\%%"%(100*(r['cp_odd_yield']/r['target_mode_yield'])) if r['target_mode_yield'] else " & -"
+    if opt.absYield:
+      catLine += " & %.4f"%r['%s_yield'%mode]
+    else:
+      modePct = 100*(r['%s_yield'%mode]/r['nominal_yield']) if r['nominal_yield'] else 0.
+      catLine += " & $<$ 0.05\%" if modePct <= 0.05  else " & %.1f\\%%"%modePct
+  # catLine += " & %.1f\\%%"%(100*(r['cp_odd_yield']/r['target_mode_yield'])) if r['target_mode_yield'] else " & -"  # CP-odd(target) column disabled
   if not opt.skipBkgCol:
     catLine += " & -" if r['bkg_yield'] is None else " & %.2f"%r['bkg_yield']
   if opt.catInfoPkl != '':
