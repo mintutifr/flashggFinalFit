@@ -49,6 +49,13 @@ for cat in "${cats[@]}"; do
     python3 RunPackager.py --cats "${cat}" --exts tth_th_cp_Analysis --mergeYears --batch local --massPoints 125
 done
 
+# plots for all years togather:
+years_joined=$(IFS=,; echo "${years[*]}")
+
+for cat in "${cats[@]}"; do
+    python3 RunPlotter.py --procs all --years "${years_joined}" --cats "${cat}" --ext packaged
+done
+
 # procs=("GG2H" "TTH" "tHqHadCPodd" "tHqHad" "tHqLepCPodd" "tHqLep",tHqHadKt0Ktt0,tHqHadKtm1Ktt0,tHqLepKt0Ktt0,tHqLepKtm1Ktt0)
 # # if you are adding new processes, make sure it is also addded to club_workspaces.sh and tools/XSBRMap.py is updated
 
