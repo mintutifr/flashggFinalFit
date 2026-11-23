@@ -44,7 +44,15 @@ else
                 echo "  [SKIP] Missing: ${inputTreeFile}"
                 continue
             fi
-            echo "python3 trees2ws.py --inputConfig config_tutorial.py --inputTreeFile '${inputTreeFile}' --inputMass 125 --productionMode ${prod_mode} --year ${year}" >> "${CMDS_FILE}"
+            extra_args=""
+            # tHW/2022postEE has ~3.9M raw entries across its 24 categories, which
+            # overflows ROOT's ~1GB single-object streaming limit when combined
+            # into one RooWorkspace (TBufferFile::WriteByteCount). Thin it down;
+            # weight is rescaled so the total weighted yield is preserved.
+            if [[ "${sample}" == "tHW" && "${year}" == "2022postEE" ]]; then
+                extra_args="--maxEntriesPerCat 70000"
+            fi
+            echo "python3 trees2ws.py --inputConfig config_tutorial.py --inputTreeFile '${inputTreeFile}' --inputMass 125 --productionMode ${prod_mode} --year ${year} ${extra_args}" >> "${CMDS_FILE}"
         done
     done
 

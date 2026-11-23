@@ -20,6 +20,7 @@ def get_options():
   parser.add_option('--doNNLOPS',dest='doNNLOPS', default=False, action="store_true", help='Add NNLOPS weight variable: NNLOPSweight')
   parser.add_option('--doSystematics',dest='doSystematics', default=False, action="store_true", help='Add systematics datasets to output WS')
   parser.add_option('--doSTXSSplitting',dest='doSTXSSplitting', default=False, action="store_true", help='Split output WS per STXS bin')
+  parser.add_option('--maxEntriesPerCat',dest='maxEntriesPerCat', default=0, type='int', help='Randomly thin any category with more raw entries than this down to this many, rescaling weight to preserve the total weighted yield. 0 = disabled. Use to avoid ROOT TBufferFile 1GB limit when combining many categories into one RooWorkspace')
   return parser.parse_args()
 (opt,args) = get_options()
 
@@ -165,6 +166,18 @@ for cat in cats:
   # Concatenate current dataframes
   df = pandas.concat(dfs.values(), axis=1)
   df = df.drop(columns=["weight_LHEPdf", "weight_LHEScale","weight_central","weight_nominal"], errors="ignore")
+
+  # Thin categories with excessive raw MC stats (avoids hitting ROOT's ~1GB
+  # single-object streaming limit when all categories are combined into one
+  # RooWorkspace). Rescale weight so the total weighted yield is preserved.
+  if opt.maxEntriesPerCat > 0 and len(df) > opt.maxEntriesPerCat:
+    nBefore = len(df)
+    sumWeightBefore = df['weight'].sum()
+    df = df.sample(n=opt.maxEntriesPerCat, random_state=42).reset_index(drop=True)
+    sumWeightAfter = df['weight'].sum()
+    scaleFactor = sumWeightBefore/sumWeightAfter
+    df['weight'] *= scaleFactor
+    print("    * thinned category %s: %d -> %d entries (weight rescaled by x%.3f to preserve sum(weight)=%g exactly)"%(cat,nBefore,opt.maxEntriesPerCat,scaleFactor,sumWeightBefore))
 
   # Add STXS splitting var if splitting necessary
   if opt.doSTXSSplitting: df[stxsVar] = t.arrays(stxsVar, library='pd')
