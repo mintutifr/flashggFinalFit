@@ -97,7 +97,7 @@ CP_CATEGORIES["tHq_lep1_CP_mix"]  = "tHq_lep1"
 # fraction it's useful to see the CP-odd/CP-even split within that mode too.
 PRODUCTION_MODE_PROCS = od()
 PRODUCTION_MODE_PROCS["GG2H"]     = ["GG2H"]
-#PRODUCTION_MODE_PROCS["THW"]     = ["THW"]
+PRODUCTION_MODE_PROCS["THW"]     = ["tHW"]
 if(opt.cp == 'even'):
   PRODUCTION_MODE_PROCS["ttH"]     = ["TTH"]
 elif(opt.cp == 'odd'):
